@@ -1,7 +1,9 @@
 package com.inool.daijia.customer.controller;
 
 import com.inool.daijia.common.constant.RedisConstant;
+import com.inool.daijia.common.login.InoolLogin;
 import com.inool.daijia.common.result.Result;
+import com.inool.daijia.common.util.AuthContextHolder;
 import com.inool.daijia.customer.service.CustomerService;
 import com.inool.daijia.model.vo.customer.CustomerLoginVo;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,10 +31,11 @@ public class CustomerController {
     private RedisTemplate redisTemplate;
 
     @Operation(summary = "获取客户登录信息")
+    @InoolLogin
     @GetMapping("/getCustomerLoginInfo")
-    public Result<CustomerLoginVo> getCustomerLoginInfo(@RequestHeader(value="token") String token) {
-        String customerId = (String)redisTemplate.opsForValue().get(RedisConstant.USER_LOGIN_KEY_PREFIX+token);
-        return Result.ok(customerInfoService.getCustomerLoginInfo(Long.parseLong(customerId)));
+    public Result<CustomerLoginVo> getCustomerLoginInfo() {
+        Long customerId = AuthContextHolder.getUserId();
+        return Result.ok(customerInfoService.getCustomerLoginInfo(customerId));
     }
 }
 
