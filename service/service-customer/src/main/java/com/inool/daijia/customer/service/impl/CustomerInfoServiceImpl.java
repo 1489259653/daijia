@@ -2,6 +2,8 @@ package com.inool.daijia.customer.service.impl;
 
 import cn.binarywang.wx.miniapp.api.WxMaService;
 import cn.binarywang.wx.miniapp.bean.WxMaJscode2SessionResult;
+import cn.binarywang.wx.miniapp.bean.WxMaPhoneNumberInfo;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.inool.daijia.common.execption.InoolException;
 import com.inool.daijia.customer.mapper.CustomerInfoMapper;
@@ -11,7 +13,9 @@ import com.inool.daijia.model.entity.customer.CustomerInfo;
 import com.inool.daijia.common.result.ResultCodeEnum;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.inool.daijia.model.entity.customer.CustomerLoginLog;
+import com.inool.daijia.model.form.customer.UpdateWxPhoneForm;
 import com.inool.daijia.model.vo.customer.CustomerLoginVo;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,5 +80,21 @@ public class CustomerInfoServiceImpl extends ServiceImpl<CustomerInfoMapper, Cus
         Boolean isBindPhone = StringUtils.hasText(customerInfo.getPhone());
         customerInfoVo.setIsBindPhone(isBindPhone);
         return customerInfoVo;
+    }
+
+    @SneakyThrows
+    @Transactional(rollbackFor = {Exception.class})
+    @Override
+    public Boolean updateWxPhoneNumber(UpdateWxPhoneForm updateWxPhoneForm) {
+        // 调用微信 API 获取用户的手机号
+        WxMaPhoneNumberInfo phoneInfo = wxMaService.getUserService().getPhoneNoInfo(updateWxPhoneForm.getCode());
+        String phoneNumber = phoneInfo.getPhoneNumber();
+        log.info("phoneInfo:{}", JSON.toJSONString(phoneInfo));
+
+        CustomerInfo customerInfo = new CustomerInfo();
+        customerInfo.setId(updateWxPhoneForm.getCustomerId());
+        customerInfo.setPhone(phoneNumber);
+        return this.updateById(customerInfo);
+
     }
 }

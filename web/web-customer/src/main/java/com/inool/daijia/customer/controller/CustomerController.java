@@ -5,6 +5,7 @@ import com.inool.daijia.common.login.InoolLogin;
 import com.inool.daijia.common.result.Result;
 import com.inool.daijia.common.util.AuthContextHolder;
 import com.inool.daijia.customer.service.CustomerService;
+import com.inool.daijia.model.form.customer.UpdateWxPhoneForm;
 import com.inool.daijia.model.vo.customer.CustomerLoginVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -36,6 +37,14 @@ public class CustomerController {
     public Result<CustomerLoginVo> getCustomerLoginInfo() {
         Long customerId = AuthContextHolder.getUserId();
         return Result.ok(customerInfoService.getCustomerLoginInfo(customerId));
+    }
+    @Operation(summary = "更新用户微信手机号")
+    @InoolLogin
+    @PostMapping("/updateWxPhone")
+    public Result updateWxPhone(@RequestBody UpdateWxPhoneForm updateWxPhoneForm) {
+        updateWxPhoneForm.setCustomerId(AuthContextHolder.getUserId());
+        //customerInfoService.updateWxPhoneNumber(updateWxPhoneForm);
+        return Result.ok(true);
     }
 }
 

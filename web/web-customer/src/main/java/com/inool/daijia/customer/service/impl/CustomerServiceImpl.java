@@ -29,15 +29,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public String login(String code) {
-        //获取openId
-        Result<Long> result = customerInfoFeignClient.login(code);
-        if(result.getCode().intValue() != 200) {
-            throw new InoolException(result.getCode(), result.getMessage());
-        }
-        Long customerId = result.getData();
-        if(null == customerId) {
-            throw new InoolException(ResultCodeEnum.DATA_ERROR);
-        }
+        Long customerId = customerInfoFeignClient.login(code).getData();
 
         String token = UUID.randomUUID().toString().replaceAll("-", "");
         redisTemplate.opsForValue().set(RedisConstant.USER_LOGIN_KEY_PREFIX+token, customerId.toString(), RedisConstant.USER_LOGIN_KEY_TIMEOUT, TimeUnit.SECONDS);
@@ -47,14 +39,6 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerLoginVo getCustomerLoginInfo(Long customerId) {
-        Result<CustomerLoginVo> result = customerInfoFeignClient.getCustomerLoginInfo(customerId);
-        if(result.getCode().intValue() != 200) {
-            throw new InoolException(result.getCode(), result.getMessage());
-        }
-        CustomerLoginVo customerLoginVo = result.getData();
-        if(null == customerLoginVo) {
-            throw new InoolException(ResultCodeEnum.DATA_ERROR);
-        }
-        return customerLoginVo;
+        return customerInfoFeignClient.getCustomerLoginInfo(customerId).getData();
     }
 }
