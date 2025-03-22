@@ -2,6 +2,7 @@ package com.inool.daijia.driver.client;
 
 import com.inool.daijia.common.result.Result;
 import com.inool.daijia.model.vo.driver.CosUploadVo;
+import com.inool.daijia.model.vo.driver.IdCardOcrVo;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,4 +21,12 @@ public interface CosFeignClient {
      */
     @PostMapping(value = "/cos/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     Result<CosUploadVo> upload(@RequestPart("file") MultipartFile file, @RequestParam("path") String path);
+
+    /**
+     * 身份证识别
+     * @param file
+     * @return
+     */
+    @PostMapping(value = "/ocr/idCardOcr", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    Result<IdCardOcrVo> idCardOcr(@RequestPart("file") MultipartFile file);
 }
