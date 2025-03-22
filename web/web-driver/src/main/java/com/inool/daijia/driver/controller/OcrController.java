@@ -4,6 +4,7 @@ import com.inool.daijia.common.login.InoolLogin;
 import com.inool.daijia.common.result.Result;
 import com.inool.daijia.driver.client.CosFeignClient;
 import com.inool.daijia.driver.service.OcrService;
+import com.inool.daijia.model.vo.driver.DriverLicenseOcrVo;
 import com.inool.daijia.model.vo.driver.IdCardOcrVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,6 +32,11 @@ public class OcrController {
 
         return Result.ok(ocrService.idCardOcr(file));
     }
-
+    @Operation(summary = "驾驶证识别")
+    @InoolLogin
+    @PostMapping("/driverLicenseOcr")
+    public Result<DriverLicenseOcrVo> driverLicenseOcr(@RequestPart("file") MultipartFile file) {
+        return Result.ok(ocrService.driverLicenseOcr(file));
+    }
 }
 
