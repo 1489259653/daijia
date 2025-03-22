@@ -4,6 +4,7 @@ import com.inool.daijia.common.login.InoolLogin;
 import com.inool.daijia.common.result.Result;
 import com.inool.daijia.common.util.AuthContextHolder;
 import com.inool.daijia.driver.service.DriverService;
+import com.inool.daijia.model.vo.driver.DriverAuthInfoVo;
 import com.inool.daijia.model.vo.driver.DriverLoginVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,6 +36,13 @@ public class DriverController {
     public Result<DriverLoginVo> getDriverLoginInfo() {
         Long driverId = AuthContextHolder.getUserId();
         return Result.ok(driverService.getDriverLoginInfo(driverId));
+    }
+    @Operation(summary = "获取司机认证信息")
+    @InoolLogin
+    @GetMapping("/getDriverAuthInfo")
+    public Result<DriverAuthInfoVo> getDriverAuthInfo() {
+        Long driverId = AuthContextHolder.getUserId();
+        return Result.ok(driverService.getDriverAuthInfo(driverId));
     }
 }
 

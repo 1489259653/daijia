@@ -10,9 +10,11 @@ import com.inool.daijia.driver.mapper.DriverAccountMapper;
 import com.inool.daijia.driver.mapper.DriverInfoMapper;
 import com.inool.daijia.driver.mapper.DriverLoginLogMapper;
 import com.inool.daijia.driver.mapper.DriverSetMapper;
+import com.inool.daijia.driver.service.CosService;
 import com.inool.daijia.driver.service.DriverInfoService;
 import com.inool.daijia.model.entity.driver.DriverAccount;
 import com.inool.daijia.model.entity.driver.DriverInfo;
+import com.inool.daijia.model.vo.driver.DriverAuthInfoVo;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.inool.daijia.model.entity.driver.DriverLoginLog;
 import com.inool.daijia.model.entity.driver.DriverSet;
@@ -46,6 +48,9 @@ public class DriverInfoServiceImpl extends ServiceImpl<DriverInfoMapper, DriverI
 
     @Autowired
     private DriverLoginLogMapper driverLoginLogMapper;
+
+    @Autowired
+    private CosService cosService;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -100,5 +105,19 @@ public class DriverInfoServiceImpl extends ServiceImpl<DriverInfoMapper, DriverI
         Boolean isArchiveFace = StringUtils.hasText(driverInfo.getFaceModelId());
         driverLoginVo.setIsArchiveFace(isArchiveFace);
         return driverLoginVo;
+    }
+
+    @Override
+    public DriverAuthInfoVo getDriverAuthInfo(Long driverId) {
+        DriverInfo driverInfo = this.getById(driverId);
+        DriverAuthInfoVo driverAuthInfoVo = new DriverAuthInfoVo();
+        BeanUtils.copyProperties(driverInfo, driverAuthInfoVo);
+        driverAuthInfoVo.setIdcardBackShowUrl(cosService.getImageUrl(driverAuthInfoVo.getIdcardBackUrl()));
+        driverAuthInfoVo.setIdcardFrontShowUrl(cosService.getImageUrl(driverAuthInfoVo.getIdcardFrontUrl()));
+        driverAuthInfoVo.setIdcardHandShowUrl(cosService.getImageUrl(driverAuthInfoVo.getIdcardHandUrl()));
+        driverAuthInfoVo.setDriverLicenseFrontShowUrl(cosService.getImageUrl(driverAuthInfoVo.getDriverLicenseFrontUrl()));
+        driverAuthInfoVo.setDriverLicenseBackShowUrl(cosService.getImageUrl(driverAuthInfoVo.getDriverLicenseBackUrl()));
+        driverAuthInfoVo.setDriverLicenseHandShowUrl(cosService.getImageUrl(driverAuthInfoVo.getDriverLicenseHandUrl()));
+        return driverAuthInfoVo;
     }
 }
