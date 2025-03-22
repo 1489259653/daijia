@@ -3,6 +3,8 @@ package com.inool.daijia.driver.service.impl;
 import com.inool.daijia.common.constant.RedisConstant;
 import com.inool.daijia.driver.client.DriverInfoFeignClient;
 import com.inool.daijia.driver.service.DriverService;
+import com.inool.daijia.model.form.driver.DriverFaceModelForm;
+import com.inool.daijia.model.form.driver.UpdateDriverAuthInfoForm;
 import com.inool.daijia.model.vo.driver.DriverAuthInfoVo;
 import com.inool.daijia.model.vo.driver.DriverLoginVo;
 import lombok.SneakyThrows;
@@ -42,5 +44,15 @@ public class DriverServiceImpl implements DriverService {
     @Override
     public DriverAuthInfoVo getDriverAuthInfo(Long driverId) {
         return driverInfoFeignClient.getDriverAuthInfo(driverId).getData();
+    }
+
+    @Override
+    public Boolean updateDriverAuthInfo(UpdateDriverAuthInfoForm updateDriverAuthInfoForm) {
+        return driverInfoFeignClient.UpdateDriverAuthInfo(updateDriverAuthInfoForm).getData();
+    }
+
+    @Override
+    public Boolean creatDriverFaceModel(DriverFaceModelForm driverFaceModelForm) {
+        return driverInfoFeignClient.creatDriverFaceModel(driverFaceModelForm).getData();
     }
 }

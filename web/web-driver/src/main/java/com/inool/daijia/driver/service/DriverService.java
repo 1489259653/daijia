@@ -1,5 +1,7 @@
 package com.inool.daijia.driver.service;
 
+import com.inool.daijia.model.form.driver.DriverFaceModelForm;
+import com.inool.daijia.model.form.driver.UpdateDriverAuthInfoForm;
 import com.inool.daijia.model.vo.driver.DriverAuthInfoVo;
 import com.inool.daijia.model.vo.driver.DriverLoginVo;
 
@@ -11,4 +13,8 @@ public interface DriverService {
     DriverLoginVo getDriverLoginInfo(Long driverId);
 
     DriverAuthInfoVo getDriverAuthInfo(Long driverId);
+
+    Boolean updateDriverAuthInfo(UpdateDriverAuthInfoForm updateDriverAuthInfoForm);
+
+    Boolean creatDriverFaceModel(DriverFaceModelForm driverFaceModelForm);
 }

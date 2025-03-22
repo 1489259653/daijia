@@ -2,16 +2,15 @@ package com.inool.daijia.driver.controller;
 
 import com.inool.daijia.common.result.Result;
 import com.inool.daijia.driver.service.DriverInfoService;
+import com.inool.daijia.model.form.driver.DriverFaceModelForm;
+import com.inool.daijia.model.form.driver.UpdateDriverAuthInfoForm;
 import com.inool.daijia.model.vo.driver.DriverAuthInfoVo;
 import com.inool.daijia.model.vo.driver.DriverLoginVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @Tag(name = "司机API接口管理")
@@ -39,6 +38,18 @@ public class DriverInfoController {
     @GetMapping("/getDriverAuthInfo/{driverId}")
     Result<DriverAuthInfoVo> getDriverAuthInfo(@PathVariable("driverId") Long driverId) {
         return Result.ok(driverInfoService.getDriverAuthInfo(driverId));
+    }
+
+    @Operation(summary = "更新司机认证信息")
+    @PostMapping("/updateDriverAuthInfo")
+    public Result<Boolean> UpdateDriverAuthInfo(@RequestBody UpdateDriverAuthInfoForm updateDriverAuthInfoForm) {
+        return Result.ok(driverInfoService.updateDriverAuthInfo(updateDriverAuthInfoForm));
+    }
+
+    @Operation(summary = "创建司机人脸模型")
+    @PostMapping("/creatDriverFaceModel")
+    public Result<Boolean> creatDriverFaceModel(@RequestBody DriverFaceModelForm driverFaceModelForm) {
+        return Result.ok(driverInfoService.creatDriverFaceModel(driverFaceModelForm));
     }
 }
 
