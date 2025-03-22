@@ -16,10 +16,13 @@ import com.inool.daijia.model.entity.driver.DriverInfo;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.inool.daijia.model.entity.driver.DriverLoginLog;
 import com.inool.daijia.model.entity.driver.DriverSet;
+import com.inool.daijia.model.vo.driver.DriverLoginVo;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 
@@ -87,5 +90,15 @@ public class DriverInfoServiceImpl extends ServiceImpl<DriverInfoMapper, DriverI
         driverLoginLog.setMsg("小程序登录");
         driverLoginLogMapper.insert(driverLoginLog);
         return driverInfo.getId();
+    }
+    @Override
+    public DriverLoginVo getDriverLoginInfo(Long driverId) {
+        DriverInfo driverInfo = this.getById(driverId);
+        DriverLoginVo driverLoginVo = new DriverLoginVo();
+        BeanUtils.copyProperties(driverInfo, driverLoginVo);
+        //是否创建人脸库人员，接单时做人脸识别判断
+        Boolean isArchiveFace = StringUtils.hasText(driverInfo.getFaceModelId());
+        driverLoginVo.setIsArchiveFace(isArchiveFace);
+        return driverLoginVo;
     }
 }
