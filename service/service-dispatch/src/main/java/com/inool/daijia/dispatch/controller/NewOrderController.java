@@ -6,16 +6,16 @@ import com.inool.daijia.dispatch.mapper.XxlJobLogMapper;
 import com.inool.daijia.dispatch.service.NewOrderService;
 import com.inool.daijia.model.entity.dispatch.XxlJobLog;
 import com.inool.daijia.model.vo.dispatch.NewOrderTaskVo;
+import com.inool.daijia.model.vo.order.NewOrderDataVo;
 import com.xxl.job.core.context.XxlJobHelper;
 import com.xxl.job.core.handler.annotation.XxlJob;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @Tag(name = "司机新订单接口管理")
@@ -61,6 +61,17 @@ public class NewOrderController {
             xxlJobLog.setTimes(times);
             xxlJobLogMapper.insert(xxlJobLog);
         }
+    }
+    @Operation(summary = "查询司机新订单数据")
+    @GetMapping("/findNewOrderQueueData/{driverId}")
+    public Result<List<NewOrderDataVo>> findNewOrderQueueData(@PathVariable Long driverId) {
+        return Result.ok(newOrderService.findNewOrderQueueData(driverId));
+    }
+
+    @Operation(summary = "清空新订单队列数据")
+    @GetMapping("/clearNewOrderQueueData/{driverId}")
+    public Result<Boolean> clearNewOrderQueueData(@PathVariable Long driverId) {
+        return Result.ok(newOrderService.clearNewOrderQueueData(driverId));
     }
 }
 

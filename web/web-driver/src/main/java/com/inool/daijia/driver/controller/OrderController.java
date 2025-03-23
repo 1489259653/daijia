@@ -10,6 +10,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import com.inool.daijia.model.vo.order.NewOrderDataVo;
+
+import java.util.List;
 
 @Slf4j
 @Tag(name = "订单API接口管理")
@@ -26,6 +29,14 @@ public class OrderController {
     @GetMapping("/getOrderStatus/{orderId}")
     public Result<Integer> getOrderStatus(@PathVariable Long orderId) {
         return Result.ok(orderService.getOrderStatus(orderId));
+    }
+
+    @Operation(summary = "查询司机新订单数据")
+    @InoolLogin
+    @GetMapping("/findNewOrderQueueData")
+    public Result<List<NewOrderDataVo>> findNewOrderQueueData() {
+        Long driverId = AuthContextHolder.getUserId();
+        return Result.ok(orderService.findNewOrderQueueData(driverId));
     }
 
 }
