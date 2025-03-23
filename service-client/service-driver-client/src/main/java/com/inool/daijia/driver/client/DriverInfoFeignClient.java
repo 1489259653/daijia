@@ -1,6 +1,7 @@
 package com.inool.daijia.driver.client;
 
 import com.inool.daijia.common.result.Result;
+import com.inool.daijia.model.entity.driver.DriverSet;
 import com.inool.daijia.model.form.driver.DriverFaceModelForm;
 import com.inool.daijia.model.form.driver.UpdateDriverAuthInfoForm;
 import com.inool.daijia.model.vo.driver.DriverAuthInfoVo;
@@ -53,4 +54,12 @@ public interface DriverInfoFeignClient {
      */
     @PostMapping("/driver/info/creatDriverFaceModel")
     Result<Boolean> creatDriverFaceModel(@RequestBody DriverFaceModelForm driverFaceModelForm);
+
+    /**
+     * 获取司机设置信息
+     * @param driverId
+     * @return
+     */
+    @GetMapping("/driver/info/getDriverSet/{driverId}")
+    Result<DriverSet> getDriverSet(@PathVariable("driverId") Long driverId);
 }
