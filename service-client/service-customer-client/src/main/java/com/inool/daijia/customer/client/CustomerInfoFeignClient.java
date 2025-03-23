@@ -19,6 +19,7 @@ public interface CustomerInfoFeignClient {
     @GetMapping("/customer/info/login/{code}")
     Result<Long> login(@PathVariable String code);
 
+    @GetMapping("/customer/info/getCustomerLoginInfo/{customerId}")
     Result<CustomerLoginVo> getCustomerLoginInfo(Long customerId);
 
     /**

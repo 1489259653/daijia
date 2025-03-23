@@ -101,12 +101,7 @@
                 <version>${fastjson.version}</version>
             </dependency>
 
-            <!-- 腾讯云VOD -->
-            <dependency>
-                <groupId>com.qcloud</groupId>
-                <artifactId>vod_api</artifactId>
-                <version>${vod_api.version}</version>
-            </dependency>
+
 
             <!-- minio -->
             <dependency>
@@ -128,7 +123,12 @@
                 <artifactId>xxl-job-core</artifactId>
                 <version>${xxl-job.version}</version>
             </dependency>
-
+            <!-- 腾讯云VOD -->
+            <dependency>
+                <groupId>com.qcloud</groupId>
+                <artifactId>vod_api</artifactId>
+                <version>${vod_api.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.github.wechatpay-apiv3</groupId>
                 <artifactId>wechatpay-java</artifactId>
