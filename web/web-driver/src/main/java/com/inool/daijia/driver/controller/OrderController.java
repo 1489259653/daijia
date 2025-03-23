@@ -18,8 +18,15 @@ import org.springframework.web.bind.annotation.*;
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class OrderController {
 
+    @Autowired
+    private OrderService orderService;
 
-
+    @Operation(summary = "查询订单状态")
+    @InoolLogin
+    @GetMapping("/getOrderStatus/{orderId}")
+    public Result<Integer> getOrderStatus(@PathVariable Long orderId) {
+        return Result.ok(orderService.getOrderStatus(orderId));
+    }
 
 }
 
