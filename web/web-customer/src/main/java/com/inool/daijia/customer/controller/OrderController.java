@@ -2,8 +2,10 @@ package com.inool.daijia.customer.controller;
 
 import com.inool.daijia.common.login.InoolLogin;
 import com.inool.daijia.common.result.Result;
+import com.inool.daijia.common.util.AuthContextHolder;
 import com.inool.daijia.customer.service.OrderService;
 import com.inool.daijia.model.form.customer.ExpectOrderForm;
+import com.inool.daijia.model.form.customer.SubmitOrderForm;
 import com.inool.daijia.model.vo.customer.ExpectOrderVo;
 import com.inool.daijia.model.vo.order.CurrentOrderInfoVo;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,5 +39,21 @@ public class OrderController {
         return Result.ok(orderService.expectOrder(expectOrderForm));
     }
 
+
+
+    @Operation(summary = "乘客下单")
+    @InoolLogin
+    @PostMapping("/submitOrder")
+    public Result<Long> submitOrder(@RequestBody SubmitOrderForm submitOrderForm) {
+        submitOrderForm.setCustomerId(AuthContextHolder.getUserId());
+        return Result.ok(orderService.submitOrder(submitOrderForm));
+    }
+
+    @Operation(summary = "查询订单状态")
+    @InoolLogin
+    @GetMapping("/getOrderStatus/{orderId}")
+    public Result<Integer> getOrderStatus(@PathVariable Long orderId) {
+        return Result.ok(orderService.getOrderStatus(orderId));
+    }
 }
 
