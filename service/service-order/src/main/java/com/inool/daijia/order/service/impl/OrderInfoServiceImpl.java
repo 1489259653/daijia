@@ -1,6 +1,8 @@
 package com.inool.daijia.order.service.impl;
 
 import com.inool.daijia.common.constant.RedisConstant;
+import com.inool.daijia.common.execption.InoolException;
+import com.inool.daijia.common.result.ResultCodeEnum;
 import com.inool.daijia.model.entity.order.OrderInfo;
 import com.inool.daijia.model.entity.order.OrderStatusLog;
 import com.inool.daijia.model.enums.OrderStatus;
@@ -70,5 +72,35 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         orderStatusLog.setOrderStatus(status);
         orderStatusLog.setOperateTime(new Date());
         orderStatusLogMapper.insert(orderStatusLog);
+    }
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public Boolean robNewOrder(Long driverId, Long orderId) {
+        //抢单成功或取消订单，都会删除该key，redis判断，减少数据库压力
+        if(!redisTemplate.hasKey(RedisConstant.ORDER_ACCEPT_MARK)) {
+            //抢单失败
+            throw new InoolException(ResultCodeEnum.COB_NEW_ORDER_FAIL);
+        }
+
+        //修改订单状态及司机id
+        //update order_info set status = 2, driver_id = #{driverId}, accept_time = now() where id = #{id}
+        //修改字段
+        OrderInfo orderInfo = new OrderInfo();
+        orderInfo.setId(orderId);
+        orderInfo.setStatus(OrderStatus.ACCEPTED.getStatus());
+        orderInfo.setAcceptTime(new Date());
+        orderInfo.setDriverId(driverId);
+        int rows = orderInfoMapper.updateById(orderInfo);
+        if(rows != 1) {
+            //抢单失败
+            throw new InoolException(ResultCodeEnum.COB_NEW_ORDER_FAIL);
+        }
+
+        //记录日志
+        this.log(orderId, orderInfo.getStatus());
+
+        //删除redis订单标识
+        redisTemplate.delete(RedisConstant.ORDER_ACCEPT_MARK);
+        return true;
     }
 }
