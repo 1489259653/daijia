@@ -22,4 +22,6 @@ public interface OrderService {
 
 
     OrderInfoVo getOrderInfo(Long orderId, Long driverId);
+
+    Boolean driverArriveStartLocation(Long orderId, Long driverId);
 }
