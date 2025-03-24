@@ -51,4 +51,9 @@ public class OrderServiceImpl implements OrderService {
     public CurrentOrderInfoVo searchCustomerCurrentOrder(Long customerId) {
         return orderInfoFeignClient.searchCustomerCurrentOrder(customerId).getData();
     }
+
+    @Override
+    public CurrentOrderInfoVo searchDriverCurrentOrder(Long driverId) {
+        return orderInfoFeignClient.searchDriverCurrentOrder(driverId).getData();
+    }
 }

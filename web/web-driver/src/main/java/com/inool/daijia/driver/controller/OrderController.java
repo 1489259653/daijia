@@ -39,14 +39,7 @@ public class OrderController {
         Long driverId = AuthContextHolder.getUserId();
         return Result.ok(orderService.findNewOrderQueueData(driverId));
     }
-    @Operation(summary = "查找司机端当前订单")
-    @InoolLogin
-    @GetMapping("/searchDriverCurrentOrder")
-    public Result<CurrentOrderInfoVo> searchDriverCurrentOrder() {
-        CurrentOrderInfoVo currentOrderInfoVo = new CurrentOrderInfoVo();
-        currentOrderInfoVo.setIsHasCurrentOrder(false);
-        return Result.ok(currentOrderInfoVo);
-    }
+
 
     @Operation(summary = "司机抢单")
     @InoolLogin
@@ -64,6 +57,13 @@ public class OrderController {
         return Result.ok(orderService.searchCustomerCurrentOrder(customerId));
     }
 
+    @Operation(summary = "司机端查找当前订单")
+    @InoolLogin
+    @GetMapping("/searchDriverCurrentOrder")
+    public Result<CurrentOrderInfoVo> searchDriverCurrentOrder() {
+        Long driverId = AuthContextHolder.getUserId();
+        return Result.ok(orderService.searchDriverCurrentOrder(driverId));
+    }
 
 }
 
