@@ -3,6 +3,7 @@ package com.inool.daijia.map.client;
 import com.inool.daijia.common.result.Result;
 import com.inool.daijia.model.form.map.SearchNearByDriverForm;
 import com.inool.daijia.model.form.map.UpdateDriverLocationForm;
+import com.inool.daijia.model.form.map.UpdateOrderLocationForm;
 import com.inool.daijia.model.vo.map.NearByDriverVo;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -37,4 +38,12 @@ public interface LocationFeignClient {
      */
     @PostMapping("/map/location/searchNearByDriver")
     Result<List<NearByDriverVo>> searchNearByDriver(@RequestBody SearchNearByDriverForm searchNearByDriverForm);
+
+    /**
+     * 司机赶往代驾起始点：更新订单地址到缓存
+     * @param updateOrderLocationForm
+     * @return
+     */
+    @PostMapping("/map/location/updateOrderLocationToCache")
+    Result<Boolean> updateOrderLocationToCache(@RequestBody UpdateOrderLocationForm updateOrderLocationForm);
 }

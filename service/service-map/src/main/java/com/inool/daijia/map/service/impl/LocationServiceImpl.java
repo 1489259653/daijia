@@ -11,7 +11,9 @@ import com.inool.daijia.map.service.LocationService;
 import com.inool.daijia.model.entity.driver.DriverSet;
 import com.inool.daijia.model.form.map.SearchNearByDriverForm;
 import com.inool.daijia.model.form.map.UpdateDriverLocationForm;
+import com.inool.daijia.model.form.map.UpdateOrderLocationForm;
 import com.inool.daijia.model.vo.map.NearByDriverVo;
+import com.inool.daijia.model.vo.map.OrderLocationVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.geo.*;
@@ -38,6 +40,16 @@ public class LocationServiceImpl implements LocationService {
     @Autowired
     private LocationFeignClient locationFeignClient;
 
+
+
+    @Override
+    public Boolean updateOrderLocationToCache(UpdateOrderLocationForm updateOrderLocationForm) {
+        OrderLocationVo orderLocationVo = new OrderLocationVo();
+        orderLocationVo.setLongitude(updateOrderLocationForm.getLongitude());
+        orderLocationVo.setLatitude(updateOrderLocationForm.getLatitude());
+        redisTemplate.opsForValue().set(RedisConstant.UPDATE_ORDER_LOCATION + updateOrderLocationForm.getOrderId(), orderLocationVo);
+        return true;
+    }
 
     @Override
     public List<NearByDriverVo> searchNearByDriver(SearchNearByDriverForm searchNearByDriverForm) {
