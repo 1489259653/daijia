@@ -74,5 +74,13 @@ public class DriverController {
         driverFaceModelForm.setDriverId(AuthContextHolder.getUserId());
         return Result.ok(driverService.verifyDriverFace(driverFaceModelForm));
     }
+
+    @Operation(summary = "开始接单服务")
+    @InoolLogin
+    @GetMapping("/startService")
+    public Result<Boolean> startService() {
+        Long driverId = AuthContextHolder.getUserId();
+        return Result.ok(driverService.startService(driverId));
+    }
 }
 
