@@ -5,6 +5,7 @@ import com.inool.daijia.common.result.ResultCodeEnum;
 import com.inool.daijia.customer.service.OrderService;
 import com.inool.daijia.dispatch.client.NewOrderFeignClient;
 import com.inool.daijia.driver.client.DriverInfoFeignClient;
+import com.inool.daijia.map.client.LocationFeignClient;
 import com.inool.daijia.map.client.MapFeignClient;
 import com.inool.daijia.model.entity.order.OrderInfo;
 import com.inool.daijia.model.form.customer.ExpectOrderForm;
@@ -16,6 +17,7 @@ import com.inool.daijia.model.vo.customer.ExpectOrderVo;
 import com.inool.daijia.model.vo.dispatch.NewOrderTaskVo;
 import com.inool.daijia.model.vo.driver.DriverInfoVo;
 import com.inool.daijia.model.vo.map.DrivingLineVo;
+import com.inool.daijia.model.vo.map.OrderLocationVo;
 import com.inool.daijia.model.vo.order.OrderInfoVo;
 import com.inool.daijia.model.vo.rules.FeeRuleResponseVo;
 import com.inool.daijia.order.client.OrderInfoFeignClient;
@@ -46,6 +48,15 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private DriverInfoFeignClient driverInfoFeignClient;
+
+    @Autowired
+    private LocationFeignClient locationFeignClient;
+
+
+    @Override
+    public OrderLocationVo getCacheOrderLocation(Long orderId) {
+        return locationFeignClient.getCacheOrderLocation(orderId).getData();
+    }
 
     @Override
     public ExpectOrderVo expectOrder(ExpectOrderForm expectOrderForm) {

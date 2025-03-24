@@ -10,6 +10,7 @@ import com.inool.daijia.model.form.map.CalculateDrivingLineForm;
 import com.inool.daijia.model.vo.customer.ExpectOrderVo;
 import com.inool.daijia.model.vo.driver.DriverInfoVo;
 import com.inool.daijia.model.vo.map.DrivingLineVo;
+import com.inool.daijia.model.vo.map.OrderLocationVo;
 import com.inool.daijia.model.vo.order.CurrentOrderInfoVo;
 import com.inool.daijia.model.vo.order.OrderInfoVo;
 import io.swagger.v3.oas.annotations.Operation;
@@ -81,6 +82,13 @@ public class OrderController {
     public Result<DriverInfoVo> getDriverInfo(@PathVariable Long orderId) {
         Long customerId = AuthContextHolder.getUserId();
         return Result.ok(orderService.getDriverInfo(orderId, customerId));
+    }
+
+    @Operation(summary = "司机赶往代驾起始点：获取订单经纬度位置")
+    @InoolLogin
+    @GetMapping("/getCacheOrderLocation/{orderId}")
+    public Result<OrderLocationVo> getOrderLocation(@PathVariable Long orderId) {
+        return Result.ok(orderService.getCacheOrderLocation(orderId));
     }
 }
 
