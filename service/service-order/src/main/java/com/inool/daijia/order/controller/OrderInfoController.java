@@ -1,6 +1,7 @@
 package com.inool.daijia.order.controller;
 
 import com.inool.daijia.common.result.Result;
+import com.inool.daijia.model.entity.order.OrderInfo;
 import com.inool.daijia.model.form.order.OrderInfoForm;
 import com.inool.daijia.model.vo.order.CurrentOrderInfoVo;
 import com.inool.daijia.order.service.OrderInfoService;
@@ -46,6 +47,12 @@ public class OrderInfoController {
     @GetMapping("/searchDriverCurrentOrder/{driverId}")
     public Result<CurrentOrderInfoVo> searchDriverCurrentOrder(@PathVariable Long driverId) {
         return Result.ok(orderInfoService.searchDriverCurrentOrder(driverId));
+    }
+
+    @Operation(summary = "根据订单id获取订单信息")
+    @GetMapping("/getOrderInfo/{orderId}")
+    public Result<OrderInfo> getOrderInfo(@PathVariable Long orderId) {
+        return Result.ok(orderInfoService.getById(orderId));
     }
 }
 

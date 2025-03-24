@@ -6,8 +6,11 @@ import com.inool.daijia.common.util.AuthContextHolder;
 import com.inool.daijia.customer.service.OrderService;
 import com.inool.daijia.model.form.customer.ExpectOrderForm;
 import com.inool.daijia.model.form.customer.SubmitOrderForm;
+import com.inool.daijia.model.form.map.CalculateDrivingLineForm;
 import com.inool.daijia.model.vo.customer.ExpectOrderVo;
+import com.inool.daijia.model.vo.map.DrivingLineVo;
 import com.inool.daijia.model.vo.order.CurrentOrderInfoVo;
+import com.inool.daijia.model.vo.order.OrderInfoVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
@@ -54,6 +57,21 @@ public class OrderController {
     @GetMapping("/getOrderStatus/{orderId}")
     public Result<Integer> getOrderStatus(@PathVariable Long orderId) {
         return Result.ok(orderService.getOrderStatus(orderId));
+    }
+
+    @Operation(summary = "获取订单信息")
+    @InoolLogin
+    @GetMapping("/getOrderInfo/{orderId}")
+    public Result<OrderInfoVo> getOrderInfo(@PathVariable Long orderId) {
+        Long customerId = AuthContextHolder.getUserId();
+        return Result.ok(orderService.getOrderInfo(orderId, customerId));
+    }
+
+    @Operation(summary = "计算最佳驾驶线路")
+    @InoolLogin
+    @PostMapping("/calculateDrivingLine")
+    public Result<DrivingLineVo> calculateDrivingLine(@RequestBody CalculateDrivingLineForm calculateDrivingLineForm) {
+        return Result.ok(orderService.calculateDrivingLine(calculateDrivingLineForm));
     }
 }
 

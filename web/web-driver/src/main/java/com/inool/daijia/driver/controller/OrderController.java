@@ -6,6 +6,7 @@ import com.inool.daijia.common.util.AuthContextHolder;
 import com.inool.daijia.driver.service.OrderService;
 import com.inool.daijia.model.form.customer.SubmitOrderForm;
 import com.inool.daijia.model.vo.order.CurrentOrderInfoVo;
+import com.inool.daijia.model.vo.order.OrderInfoVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
@@ -63,6 +64,14 @@ public class OrderController {
     public Result<CurrentOrderInfoVo> searchDriverCurrentOrder() {
         Long driverId = AuthContextHolder.getUserId();
         return Result.ok(orderService.searchDriverCurrentOrder(driverId));
+    }
+
+    @Operation(summary = "获取订单账单详细信息")
+    @InoolLogin
+    @GetMapping("/getOrderInfo/{orderId}")
+    public Result<OrderInfoVo> getOrderInfo(@PathVariable Long orderId) {
+        Long driverId = AuthContextHolder.getUserId();
+        return Result.ok(orderService.getOrderInfo(orderId, driverId));
     }
 
 }

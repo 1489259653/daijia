@@ -1,8 +1,11 @@
 package com.inool.daijia.customer.service.impl;
 
+import com.inool.daijia.common.execption.InoolException;
+import com.inool.daijia.common.result.ResultCodeEnum;
 import com.inool.daijia.customer.service.OrderService;
 import com.inool.daijia.dispatch.client.NewOrderFeignClient;
 import com.inool.daijia.map.client.MapFeignClient;
+import com.inool.daijia.model.entity.order.OrderInfo;
 import com.inool.daijia.model.form.customer.ExpectOrderForm;
 import com.inool.daijia.model.form.customer.SubmitOrderForm;
 import com.inool.daijia.model.form.map.CalculateDrivingLineForm;
@@ -11,6 +14,7 @@ import com.inool.daijia.model.form.rules.FeeRuleRequestForm;
 import com.inool.daijia.model.vo.customer.ExpectOrderVo;
 import com.inool.daijia.model.vo.dispatch.NewOrderTaskVo;
 import com.inool.daijia.model.vo.map.DrivingLineVo;
+import com.inool.daijia.model.vo.order.OrderInfoVo;
 import com.inool.daijia.model.vo.rules.FeeRuleResponseVo;
 import com.inool.daijia.order.client.OrderInfoFeignClient;
 import com.inool.daijia.rules.client.FeeRuleFeignClient;
@@ -60,6 +64,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
 
+
+    @Override
+    public DrivingLineVo calculateDrivingLine(CalculateDrivingLineForm calculateDrivingLineForm) {
+        return mapFeignClient.calculateDrivingLine(calculateDrivingLineForm).getData();
+    }
 
 
 
@@ -112,5 +121,20 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Integer getOrderStatus(Long orderId) {
         return orderInfoFeignClient.getOrderStatus(orderId).getData();
+    }
+
+    @Override
+    public OrderInfoVo getOrderInfo(Long orderId, Long customerId) {
+        //订单信息
+        OrderInfo orderInfo = orderInfoFeignClient.getOrderInfo(orderId).getData();
+        if (orderInfo.getCustomerId().longValue() != customerId.longValue()) {
+            throw new InoolException(ResultCodeEnum.ILLEGAL_REQUEST);
+        }
+
+        //封装订单信息
+        OrderInfoVo orderInfoVo = new OrderInfoVo();
+        orderInfoVo.setOrderId(orderId);
+        BeanUtils.copyProperties(orderInfo, orderInfoVo);
+        return orderInfoVo;
     }
 }
