@@ -12,6 +12,8 @@ import com.inool.daijia.order.mapper.OrderStatusLogMapper;
 import com.inool.daijia.order.service.OrderInfoService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -73,6 +75,10 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         orderStatusLog.setOperateTime(new Date());
         orderStatusLogMapper.insert(orderStatusLog);
     }
+
+    @Autowired
+    private RedissonClient redissonClient;
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Boolean robNewOrder(Long driverId, Long orderId) {
@@ -82,25 +88,52 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             throw new InoolException(ResultCodeEnum.COB_NEW_ORDER_FAIL);
         }
 
-        //修改订单状态及司机id
-        //update order_info set status = 2, driver_id = #{driverId}, accept_time = now() where id = #{id}
-        //修改字段
-        OrderInfo orderInfo = new OrderInfo();
-        orderInfo.setId(orderId);
-        orderInfo.setStatus(OrderStatus.ACCEPTED.getStatus());
-        orderInfo.setAcceptTime(new Date());
-        orderInfo.setDriverId(driverId);
-        int rows = orderInfoMapper.updateById(orderInfo);
-        if(rows != 1) {
+        // 初始化分布式锁，创建一个RLock实例
+        RLock lock = redissonClient.getLock(RedisConstant.ROB_NEW_ORDER_LOCK + orderId);
+        try {
+            /**
+             * TryLock是一种非阻塞式的分布式锁，实现原理：Redis的SETNX命令
+             * 参数：
+             *     waitTime：等待获取锁的时间
+             *     leaseTime：加锁的时间
+             */
+            boolean flag = lock.tryLock(RedisConstant.ROB_NEW_ORDER_LOCK_WAIT_TIME,RedisConstant.ROB_NEW_ORDER_LOCK_LEASE_TIME, TimeUnit.SECONDS);
+            //获取到锁
+            if (flag){
+                //二次判断，防止重复抢单
+                if(!redisTemplate.hasKey(RedisConstant.ORDER_ACCEPT_MARK)) {
+                    //抢单失败
+                    throw new InoolException(ResultCodeEnum.COB_NEW_ORDER_FAIL);
+                }
+
+                //修改订单状态
+                //update order_info set status = 2, driver_id = #{driverId} where id = #{id}
+                //修改字段
+                OrderInfo orderInfo = new OrderInfo();
+                orderInfo.setId(orderId);
+                orderInfo.setStatus(OrderStatus.ACCEPTED.getStatus());
+                orderInfo.setAcceptTime(new Date());
+                orderInfo.setDriverId(driverId);
+                int rows = orderInfoMapper.updateById(orderInfo);
+                if(rows != 1) {
+                    //抢单失败
+                    throw new InoolException(ResultCodeEnum.COB_NEW_ORDER_FAIL);
+                }
+
+                //记录日志
+                this.log(orderId, orderInfo.getStatus());
+
+                //删除redis订单标识
+                redisTemplate.delete(RedisConstant.ORDER_ACCEPT_MARK);
+            }
+        } catch (InterruptedException e) {
             //抢单失败
             throw new InoolException(ResultCodeEnum.COB_NEW_ORDER_FAIL);
+        } finally {
+            if(lock.isLocked()) {
+                lock.unlock();
+            }
         }
-
-        //记录日志
-        this.log(orderId, orderInfo.getStatus());
-
-        //删除redis订单标识
-        redisTemplate.delete(RedisConstant.ORDER_ACCEPT_MARK);
         return true;
     }
 }
