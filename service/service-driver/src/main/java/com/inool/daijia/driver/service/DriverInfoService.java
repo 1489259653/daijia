@@ -6,6 +6,7 @@ import com.inool.daijia.model.entity.driver.DriverSet;
 import com.inool.daijia.model.form.driver.DriverFaceModelForm;
 import com.inool.daijia.model.form.driver.UpdateDriverAuthInfoForm;
 import com.inool.daijia.model.vo.driver.DriverAuthInfoVo;
+import com.inool.daijia.model.vo.driver.DriverInfoVo;
 import com.inool.daijia.model.vo.driver.DriverLoginVo;
 
 public interface DriverInfoService extends IService<DriverInfo> {
@@ -27,4 +28,6 @@ public interface DriverInfoService extends IService<DriverInfo> {
     Boolean verifyDriverFace(DriverFaceModelForm driverFaceModelForm);
 
     Boolean updateServiceStatus(Long driverId, Integer status);
+
+    DriverInfoVo getDriverInfo(Long driverId);
 }

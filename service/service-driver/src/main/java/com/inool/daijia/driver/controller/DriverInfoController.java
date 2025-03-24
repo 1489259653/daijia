@@ -5,6 +5,7 @@ import com.inool.daijia.driver.service.DriverInfoService;
 import com.inool.daijia.model.form.driver.DriverFaceModelForm;
 import com.inool.daijia.model.form.driver.UpdateDriverAuthInfoForm;
 import com.inool.daijia.model.vo.driver.DriverAuthInfoVo;
+import com.inool.daijia.model.vo.driver.DriverInfoVo;
 import com.inool.daijia.model.vo.driver.DriverLoginVo;
 import com.inool.daijia.model.entity.driver.DriverSet;
 import io.swagger.v3.oas.annotations.Operation;
@@ -75,6 +76,12 @@ public class DriverInfoController {
     @GetMapping("/updateServiceStatus/{driverId}/{status}")
     public Result<Boolean> updateServiceStatus(@PathVariable Long driverId, @PathVariable Integer status) {
         return Result.ok(driverInfoService.updateServiceStatus(driverId, status));
+    }
+
+    @Operation(summary = "获取司机基本信息")
+    @GetMapping("/getDriverInfo/{driverId}")
+    public Result<DriverInfoVo> getDriverInfo(@PathVariable Long driverId) {
+        return Result.ok(driverInfoService.getDriverInfo(driverId));
     }
 }
 

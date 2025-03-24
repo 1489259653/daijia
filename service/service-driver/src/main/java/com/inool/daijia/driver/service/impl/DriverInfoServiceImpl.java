@@ -15,6 +15,7 @@ import com.inool.daijia.model.form.driver.DriverFaceModelForm;
 import com.inool.daijia.model.form.driver.UpdateDriverAuthInfoForm;
 import com.inool.daijia.model.vo.driver.DriverAuthInfoVo;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.inool.daijia.model.vo.driver.DriverInfoVo;
 import com.inool.daijia.model.vo.driver.DriverLoginVo;
 import com.tencentcloudapi.common.Credential;
 import com.tencentcloudapi.common.exception.TencentCloudSDKException;
@@ -62,6 +63,17 @@ public class DriverInfoServiceImpl extends ServiceImpl<DriverInfoMapper, DriverI
 
     @Autowired
     private DriverFaceRecognitionMapper driverFaceRecognitionMapper;
+
+    @Override
+    public DriverInfoVo getDriverInfo(Long driverId) {
+        DriverInfo driverInfo = this.getById(driverId);
+        DriverInfoVo driverInfoVo = new DriverInfoVo();
+        BeanUtils.copyProperties(driverInfo, driverInfoVo);
+        //驾龄
+        Integer driverLicenseAge = new DateTime().getYear() - new DateTime(driverInfo.getDriverLicenseIssueDate()).getYear() + 1;
+        driverInfoVo.setDriverLicenseAge(driverLicenseAge);
+        return driverInfoVo;
+    }
 
     @Override
     public Boolean isFaceRecognition(Long driverId) {

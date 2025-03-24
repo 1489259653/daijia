@@ -4,6 +4,7 @@ import com.inool.daijia.common.execption.InoolException;
 import com.inool.daijia.common.result.ResultCodeEnum;
 import com.inool.daijia.customer.service.OrderService;
 import com.inool.daijia.dispatch.client.NewOrderFeignClient;
+import com.inool.daijia.driver.client.DriverInfoFeignClient;
 import com.inool.daijia.map.client.MapFeignClient;
 import com.inool.daijia.model.entity.order.OrderInfo;
 import com.inool.daijia.model.form.customer.ExpectOrderForm;
@@ -13,6 +14,7 @@ import com.inool.daijia.model.form.order.OrderInfoForm;
 import com.inool.daijia.model.form.rules.FeeRuleRequestForm;
 import com.inool.daijia.model.vo.customer.ExpectOrderVo;
 import com.inool.daijia.model.vo.dispatch.NewOrderTaskVo;
+import com.inool.daijia.model.vo.driver.DriverInfoVo;
 import com.inool.daijia.model.vo.map.DrivingLineVo;
 import com.inool.daijia.model.vo.order.OrderInfoVo;
 import com.inool.daijia.model.vo.rules.FeeRuleResponseVo;
@@ -42,6 +44,9 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private NewOrderFeignClient newOrderFeignClient;
 
+    @Autowired
+    private DriverInfoFeignClient driverInfoFeignClient;
+
     @Override
     public ExpectOrderVo expectOrder(ExpectOrderForm expectOrderForm) {
         //计算驾驶线路
@@ -63,6 +68,14 @@ public class OrderServiceImpl implements OrderService {
         return expectOrderVo;
     }
 
+    @Override
+    public DriverInfoVo getDriverInfo(Long orderId, Long customerId) {
+        OrderInfo orderInfo = orderInfoFeignClient.getOrderInfo(orderId).getData();
+        if (orderInfo.getCustomerId().longValue() != customerId.longValue()) {
+            throw new InoolException(ResultCodeEnum.ILLEGAL_REQUEST);
+        }
+        return driverInfoFeignClient.getDriverInfo(orderInfo.getDriverId()).getData();
+    }
 
 
     @Override
