@@ -2,6 +2,7 @@ package com.inool.daijia.order.controller;
 
 import com.inool.daijia.common.result.Result;
 import com.inool.daijia.model.form.order.OrderInfoForm;
+import com.inool.daijia.model.vo.order.CurrentOrderInfoVo;
 import com.inool.daijia.order.service.OrderInfoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,6 +35,12 @@ public class OrderInfoController {
     @GetMapping("/robNewOrder/{driverId}/{orderId}")
     public Result<Boolean> robNewOrder(@PathVariable Long driverId, @PathVariable Long orderId) {
         return Result.ok(orderInfoService.robNewOrder(driverId, orderId));
+    }
+
+    @Operation(summary = "乘客端查找当前订单")
+    @GetMapping("/searchCustomerCurrentOrder/{customerId}")
+    public Result<CurrentOrderInfoVo> searchCustomerCurrentOrder(@PathVariable Long customerId) {
+        return Result.ok(orderInfoService.searchCustomerCurrentOrder(customerId));
     }
 }
 

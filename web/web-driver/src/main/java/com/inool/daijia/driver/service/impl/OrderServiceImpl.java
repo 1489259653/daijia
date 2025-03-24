@@ -8,6 +8,7 @@ import com.inool.daijia.model.form.map.CalculateDrivingLineForm;
 import com.inool.daijia.model.form.order.OrderInfoForm;
 import com.inool.daijia.model.form.rules.FeeRuleRequestForm;
 import com.inool.daijia.model.vo.map.DrivingLineVo;
+import com.inool.daijia.model.vo.order.CurrentOrderInfoVo;
 import com.inool.daijia.model.vo.order.NewOrderDataVo;
 import com.inool.daijia.model.vo.rules.FeeRuleResponseVo;
 import com.inool.daijia.order.client.OrderInfoFeignClient;
@@ -44,5 +45,10 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Boolean robNewOrder(Long driverId, Long orderId) {
         return orderInfoFeignClient.robNewOrder(driverId, orderId).getData();
+    }
+
+    @Override
+    public CurrentOrderInfoVo searchCustomerCurrentOrder(Long customerId) {
+        return orderInfoFeignClient.searchCustomerCurrentOrder(customerId).getData();
     }
 }

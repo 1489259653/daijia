@@ -7,6 +7,7 @@ import com.inool.daijia.model.entity.order.OrderInfo;
 import com.inool.daijia.model.entity.order.OrderStatusLog;
 import com.inool.daijia.model.enums.OrderStatus;
 import com.inool.daijia.model.form.order.OrderInfoForm;
+import com.inool.daijia.model.vo.order.CurrentOrderInfoVo;
 import com.inool.daijia.order.mapper.OrderInfoMapper;
 import com.inool.daijia.order.mapper.OrderStatusLogMapper;
 import com.inool.daijia.order.service.OrderInfoService;
@@ -36,6 +37,9 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
 
     @Autowired
     private RedisTemplate redisTemplate;
+
+    @Autowired
+    private RedissonClient redissonClient;
 
     @Transactional(rollbackFor = {Exception.class})
     @Override
@@ -76,8 +80,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         orderStatusLogMapper.insert(orderStatusLog);
     }
 
-    @Autowired
-    private RedissonClient redissonClient;
+
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -135,5 +138,32 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             }
         }
         return true;
+    }
+    @Override
+    public CurrentOrderInfoVo searchCustomerCurrentOrder(Long customerId) {
+        LambdaQueryWrapper<OrderInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(OrderInfo::getCustomerId, customerId);
+        //乘客端支付完订单，乘客端主要流程就走完（当前这些节点，乘客端会调整到相应的页面处理逻辑）
+        Integer[] statusArray = {
+                OrderStatus.ACCEPTED.getStatus(),
+                OrderStatus.DRIVER_ARRIVED.getStatus(),
+                OrderStatus.UPDATE_CART_INFO.getStatus(),
+                OrderStatus.START_SERVICE.getStatus(),
+                OrderStatus.END_SERVICE.getStatus(),
+                OrderStatus.UNPAID.getStatus()
+        };
+        queryWrapper.in(OrderInfo::getStatus, statusArray);
+        queryWrapper.orderByDesc(OrderInfo::getId);
+        queryWrapper.last("limit 1");
+        OrderInfo orderInfo = orderInfoMapper.selectOne(queryWrapper);
+        CurrentOrderInfoVo currentOrderInfoVo = new CurrentOrderInfoVo();
+        if(null != orderInfo) {
+            currentOrderInfoVo.setStatus(orderInfo.getStatus());
+            currentOrderInfoVo.setOrderId(orderInfo.getId());
+            currentOrderInfoVo.setIsHasCurrentOrder(true);
+        } else {
+            currentOrderInfoVo.setIsHasCurrentOrder(false);
+        }
+        return currentOrderInfoVo;
     }
 }

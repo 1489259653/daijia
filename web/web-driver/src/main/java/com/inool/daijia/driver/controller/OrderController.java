@@ -56,6 +56,14 @@ public class OrderController {
         return Result.ok(orderService.robNewOrder(driverId, orderId));
     }
 
+    @Operation(summary = "乘客端查找当前订单")
+    @InoolLogin
+    @GetMapping("/searchCustomerCurrentOrder")
+    public Result<CurrentOrderInfoVo> searchCustomerCurrentOrder() {
+        Long customerId = AuthContextHolder.getUserId();
+        return Result.ok(orderService.searchCustomerCurrentOrder(customerId));
+    }
+
 
 }
 
