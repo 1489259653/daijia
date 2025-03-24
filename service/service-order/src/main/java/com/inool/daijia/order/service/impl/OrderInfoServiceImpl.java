@@ -7,6 +7,7 @@ import com.inool.daijia.model.entity.order.OrderInfo;
 import com.inool.daijia.model.entity.order.OrderStatusLog;
 import com.inool.daijia.model.enums.OrderStatus;
 import com.inool.daijia.model.form.order.OrderInfoForm;
+import com.inool.daijia.model.form.order.UpdateOrderCartForm;
 import com.inool.daijia.model.vo.order.CurrentOrderInfoVo;
 import com.inool.daijia.order.mapper.OrderInfoMapper;
 import com.inool.daijia.order.mapper.OrderStatusLogMapper;
@@ -40,6 +41,28 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
 
     @Autowired
     private RedissonClient redissonClient;
+
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public Boolean updateOrderCart(UpdateOrderCartForm updateOrderCartForm) {
+        LambdaQueryWrapper<OrderInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(OrderInfo::getId, updateOrderCartForm.getOrderId());
+        queryWrapper.eq(OrderInfo::getDriverId, updateOrderCartForm.getDriverId());
+
+        OrderInfo updateOrderInfo = new OrderInfo();
+        BeanUtils.copyProperties(updateOrderCartForm, updateOrderInfo);
+        updateOrderInfo.setStatus(OrderStatus.UPDATE_CART_INFO.getStatus());
+        //只能更新自己的订单
+        int row = orderInfoMapper.update(updateOrderInfo, queryWrapper);
+        if(row == 1) {
+            //记录日志
+            this.log(updateOrderCartForm.getOrderId(), OrderStatus.UPDATE_CART_INFO.getStatus());
+        } else {
+            throw new InoolException(ResultCodeEnum.UPDATE_ERROR);
+        }
+        return true;
+    }
 
     @Transactional(rollbackFor = Exception.class)
     @Override

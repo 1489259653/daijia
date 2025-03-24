@@ -1,6 +1,7 @@
 package com.inool.daijia.driver.service;
 
 import com.inool.daijia.model.form.customer.SubmitOrderForm;
+import com.inool.daijia.model.form.order.UpdateOrderCartForm;
 import com.inool.daijia.model.vo.order.CurrentOrderInfoVo;
 import com.inool.daijia.model.vo.order.NewOrderDataVo;
 import com.inool.daijia.model.vo.order.OrderInfoVo;
@@ -24,4 +25,6 @@ public interface OrderService {
     OrderInfoVo getOrderInfo(Long orderId, Long driverId);
 
     Boolean driverArriveStartLocation(Long orderId, Long driverId);
+
+    Boolean updateOrderCart(UpdateOrderCartForm updateOrderCartForm);
 }

@@ -9,6 +9,7 @@ import com.inool.daijia.model.entity.order.OrderInfo;
 import com.inool.daijia.model.form.customer.SubmitOrderForm;
 import com.inool.daijia.model.form.map.CalculateDrivingLineForm;
 import com.inool.daijia.model.form.order.OrderInfoForm;
+import com.inool.daijia.model.form.order.UpdateOrderCartForm;
 import com.inool.daijia.model.form.rules.FeeRuleRequestForm;
 import com.inool.daijia.model.vo.map.DrivingLineVo;
 import com.inool.daijia.model.vo.order.CurrentOrderInfoVo;
@@ -39,6 +40,12 @@ public class OrderServiceImpl implements OrderService {
     }
     @Autowired
     private NewOrderFeignClient newOrderFeignClient;
+
+
+    @Override
+    public Boolean updateOrderCart(UpdateOrderCartForm updateOrderCartForm) {
+        return orderInfoFeignClient.updateOrderCart(updateOrderCartForm).getData();
+    }
 
     @Override
     public Boolean driverArriveStartLocation(Long orderId, Long driverId) {
