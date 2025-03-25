@@ -5,6 +5,7 @@ import com.inool.daijia.common.result.Result;
 import com.inool.daijia.common.util.AuthContextHolder;
 import com.inool.daijia.driver.service.OrderService;
 import com.inool.daijia.model.form.customer.SubmitOrderForm;
+import com.inool.daijia.model.form.order.OrderFeeForm;
 import com.inool.daijia.model.form.order.StartDriveForm;
 import com.inool.daijia.model.form.order.UpdateOrderCartForm;
 import com.inool.daijia.model.vo.order.CurrentOrderInfoVo;
@@ -100,6 +101,15 @@ public class OrderController {
         Long driverId = AuthContextHolder.getUserId();
         startDriveForm.setDriverId(driverId);
         return Result.ok(orderService.startDrive(startDriveForm));
+    }
+
+    @Operation(summary = "结束代驾服务更新订单账单")
+    @InoolLogin
+    @PostMapping("/endDrive")
+    public Result<Boolean> endDrive(@RequestBody OrderFeeForm orderFeeForm) {
+        Long driverId = AuthContextHolder.getUserId();
+        orderFeeForm.setDriverId(driverId);
+        return Result.ok(orderService.endDrive(orderFeeForm));
     }
 
 }

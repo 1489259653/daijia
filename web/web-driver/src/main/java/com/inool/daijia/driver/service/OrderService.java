@@ -1,6 +1,7 @@
 package com.inool.daijia.driver.service;
 
 import com.inool.daijia.model.form.customer.SubmitOrderForm;
+import com.inool.daijia.model.form.order.OrderFeeForm;
 import com.inool.daijia.model.form.order.StartDriveForm;
 import com.inool.daijia.model.form.order.UpdateOrderCartForm;
 import com.inool.daijia.model.vo.order.CurrentOrderInfoVo;
@@ -30,4 +31,6 @@ public interface OrderService {
     Boolean updateOrderCart(UpdateOrderCartForm updateOrderCartForm);
 
     Boolean startDrive(StartDriveForm startDriveForm);
+
+    Boolean endDrive(OrderFeeForm orderFeeForm);
 }
