@@ -46,7 +46,9 @@ public enum ResultCodeEnum {
     COUPON_LESS( 250, "优惠券库存不足"),
     COUPON_USER_LIMIT( 250, "超出领取数量"),
     WX_CODE_ERROR(207,"微信码错误" ),
-    XXL_JOB_ERROR(208,"调度作业错误" ), FACE_FAIL(209,"人脸识别错误" );
+    XXL_JOB_ERROR(208,"调度作业错误" ),
+    FACE_FAIL(209,"人脸识别错误" ),
+    FILE_ERROR(210,"文件上传错误" );
 
     private Integer code;
 
