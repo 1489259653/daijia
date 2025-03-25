@@ -9,6 +9,7 @@ import com.inool.daijia.model.entity.order.OrderInfo;
 import com.inool.daijia.model.form.customer.SubmitOrderForm;
 import com.inool.daijia.model.form.map.CalculateDrivingLineForm;
 import com.inool.daijia.model.form.order.OrderInfoForm;
+import com.inool.daijia.model.form.order.StartDriveForm;
 import com.inool.daijia.model.form.order.UpdateOrderCartForm;
 import com.inool.daijia.model.form.rules.FeeRuleRequestForm;
 import com.inool.daijia.model.vo.map.DrivingLineVo;
@@ -86,6 +87,11 @@ public class OrderServiceImpl implements OrderService {
         orderInfoVo.setOrderId(orderId);
         BeanUtils.copyProperties(orderInfo, orderInfoVo);
         return orderInfoVo;
+    }
+
+    @Override
+    public Boolean startDrive(StartDriveForm startDriveForm) {
+        return orderInfoFeignClient.startDrive(startDriveForm).getData();
     }
 
 }

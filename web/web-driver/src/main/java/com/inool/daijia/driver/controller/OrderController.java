@@ -5,6 +5,7 @@ import com.inool.daijia.common.result.Result;
 import com.inool.daijia.common.util.AuthContextHolder;
 import com.inool.daijia.driver.service.OrderService;
 import com.inool.daijia.model.form.customer.SubmitOrderForm;
+import com.inool.daijia.model.form.order.StartDriveForm;
 import com.inool.daijia.model.form.order.UpdateOrderCartForm;
 import com.inool.daijia.model.vo.order.CurrentOrderInfoVo;
 import com.inool.daijia.model.vo.order.OrderInfoVo;
@@ -90,6 +91,15 @@ public class OrderController {
         Long driverId = AuthContextHolder.getUserId();
         updateOrderCartForm.setDriverId(driverId);
         return Result.ok(orderService.updateOrderCart(updateOrderCartForm));
+    }
+
+    @Operation(summary = "开始代驾服务")
+    @InoolLogin
+    @PostMapping("/startDrive")
+    public Result<Boolean> startDrive(@RequestBody StartDriveForm startDriveForm) {
+        Long driverId = AuthContextHolder.getUserId();
+        startDriveForm.setDriverId(driverId);
+        return Result.ok(orderService.startDrive(startDriveForm));
     }
 
 }

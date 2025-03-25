@@ -3,6 +3,7 @@ package com.inool.daijia.order.controller;
 import com.inool.daijia.common.result.Result;
 import com.inool.daijia.model.entity.order.OrderInfo;
 import com.inool.daijia.model.form.order.OrderInfoForm;
+import com.inool.daijia.model.form.order.StartDriveForm;
 import com.inool.daijia.model.form.order.UpdateOrderCartForm;
 import com.inool.daijia.model.vo.order.CurrentOrderInfoVo;
 import com.inool.daijia.order.service.OrderInfoService;
@@ -66,6 +67,12 @@ public class OrderInfoController {
     @PostMapping("/updateOrderCart")
     public Result<Boolean> updateOrderCart(@RequestBody UpdateOrderCartForm updateOrderCartForm) {
         return Result.ok(orderInfoService.updateOrderCart(updateOrderCartForm));
+    }
+
+    @Operation(summary = "开始代驾服务")
+    @PostMapping("/startDrive")
+    public Result<Boolean> startDrive(@RequestBody StartDriveForm startDriveForm) {
+        return Result.ok(orderInfoService.startDrive(startDriveForm));
     }
 }
 
