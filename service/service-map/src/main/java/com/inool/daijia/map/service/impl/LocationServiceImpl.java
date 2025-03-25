@@ -5,6 +5,7 @@ import com.inool.daijia.common.constant.RedisConstant;
 import com.inool.daijia.common.constant.SystemConstant;
 import com.inool.daijia.common.execption.InoolException;
 import com.inool.daijia.common.result.ResultCodeEnum;
+import com.inool.daijia.common.util.LocationUtil;
 import com.inool.daijia.driver.client.DriverInfoFeignClient;
 import com.inool.daijia.map.client.LocationFeignClient;
 import com.inool.daijia.map.repository.OrderServiceLocationRepository;
@@ -18,6 +19,7 @@ import com.inool.daijia.model.form.map.UpdateOrderLocationForm;
 import com.inool.daijia.model.vo.map.NearByDriverVo;
 import com.inool.daijia.model.vo.map.OrderLocationVo;
 import com.inool.daijia.model.vo.map.OrderServiceLastLocationVo;
+import com.inool.daijia.order.client.OrderInfoFeignClient;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.BeanUtils;
@@ -58,6 +60,29 @@ public class LocationServiceImpl implements LocationService {
 
     @Autowired
     private MongoTemplate mongoTemplate;
+
+    @Autowired
+    private OrderInfoFeignClient orderInfoFeignClient;
+
+    @Override
+    public BigDecimal calculateOrderRealDistance(Long orderId) {
+        List<OrderServiceLocation> orderServiceLocationList = orderServiceLocationRepository.findByOrderIdOrderByCreateTimeAsc(orderId);
+        double realDistance = 0;
+        if(!CollectionUtils.isEmpty(orderServiceLocationList)) {
+            for (int i = 0, size=orderServiceLocationList.size()-1; i < size; i++) {
+                OrderServiceLocation location1 = orderServiceLocationList.get(i);
+                OrderServiceLocation location2 = orderServiceLocationList.get(i+1);
+
+                double distance = LocationUtil.getDistance(location1.getLatitude().doubleValue(), location1.getLongitude().doubleValue(), location2.getLatitude().doubleValue(), location2.getLongitude().doubleValue());
+                realDistance += distance;
+            }
+        }
+        //测试过程中，没有真正代驾，实际代驾GPS位置没有变化，模拟：实际代驾里程 = 预期里程 + 5
+        if(realDistance == 0) {
+            return orderInfoFeignClient.getOrderInfo(orderId).getData().getExpectDistance().add(new BigDecimal("5"));
+        }
+        return new BigDecimal(realDistance);
+    }
 
     @Override
     public OrderServiceLastLocationVo getOrderServiceLastLocation(Long orderId) {
