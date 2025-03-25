@@ -3,15 +3,16 @@ package com.inool.daijia.order.service.impl;
 import com.inool.daijia.common.constant.RedisConstant;
 import com.inool.daijia.common.execption.InoolException;
 import com.inool.daijia.common.result.ResultCodeEnum;
-import com.inool.daijia.model.entity.order.OrderInfo;
-import com.inool.daijia.model.entity.order.OrderMonitor;
-import com.inool.daijia.model.entity.order.OrderStatusLog;
+import com.inool.daijia.model.entity.order.*;
 import com.inool.daijia.model.enums.OrderStatus;
 import com.inool.daijia.model.form.order.OrderInfoForm;
 import com.inool.daijia.model.form.order.StartDriveForm;
+import com.inool.daijia.model.form.order.UpdateOrderBillForm;
 import com.inool.daijia.model.form.order.UpdateOrderCartForm;
 import com.inool.daijia.model.vo.order.CurrentOrderInfoVo;
+import com.inool.daijia.order.mapper.OrderBillMapper;
 import com.inool.daijia.order.mapper.OrderInfoMapper;
+import com.inool.daijia.order.mapper.OrderProfitsharingMapper;
 import com.inool.daijia.order.mapper.OrderStatusLogMapper;
 import com.inool.daijia.order.service.OrderInfoService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -47,6 +48,54 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
 
     @Autowired
     private OrderMonitorService orderMonitorService;
+
+
+    @Autowired
+    private OrderBillMapper orderBillMapper;
+
+    @Autowired
+    private OrderProfitsharingMapper orderProfitsharingMapper;
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public Boolean endDrive(UpdateOrderBillForm updateOrderBillForm) {
+        //更新订单信息
+        LambdaQueryWrapper<OrderInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(OrderInfo::getId, updateOrderBillForm.getOrderId());
+        queryWrapper.eq(OrderInfo::getDriverId, updateOrderBillForm.getDriverId());
+        //更新字段
+        OrderInfo updateOrderInfo = new OrderInfo();
+        updateOrderInfo.setStatus(OrderStatus.END_SERVICE.getStatus());
+        updateOrderInfo.setRealAmount(updateOrderBillForm.getTotalAmount());
+        updateOrderInfo.setFavourFee(updateOrderBillForm.getFavourFee());
+        updateOrderInfo.setEndServiceTime(new Date());
+        updateOrderInfo.setRealDistance(updateOrderBillForm.getRealDistance());
+        //只能更新自己的订单
+        int row = orderInfoMapper.update(updateOrderInfo, queryWrapper);
+        if(row == 1) {
+            //记录日志
+            this.log(updateOrderBillForm.getOrderId(), OrderStatus.END_SERVICE.getStatus());
+
+            //插入实际账单数据
+            OrderBill orderBill = new OrderBill();
+            BeanUtils.copyProperties(updateOrderBillForm, orderBill);
+            orderBill.setOrderId(updateOrderBillForm.getOrderId());
+            orderBill.setPayAmount(orderBill.getTotalAmount());
+            orderBillMapper.insert(orderBill);
+
+            //插入分账信息数据
+            OrderProfitsharing orderProfitsharing = new OrderProfitsharing();
+            BeanUtils.copyProperties(updateOrderBillForm, orderProfitsharing);
+            orderProfitsharing.setOrderId(updateOrderBillForm.getOrderId());
+            orderProfitsharing.setRuleId(updateOrderBillForm.getProfitsharingRuleId());
+            orderProfitsharing.setStatus(1);
+            orderProfitsharingMapper.insert(orderProfitsharing);
+        } else {
+            throw new InoolException(ResultCodeEnum.UPDATE_ERROR);
+        }
+        return true;
+    }
+
 
     @Override
     public Long getOrderNumByTime(String startTime, String endTime) {
