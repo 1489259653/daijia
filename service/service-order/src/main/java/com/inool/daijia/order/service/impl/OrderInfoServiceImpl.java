@@ -4,6 +4,7 @@ import com.inool.daijia.common.constant.RedisConstant;
 import com.inool.daijia.common.execption.InoolException;
 import com.inool.daijia.common.result.ResultCodeEnum;
 import com.inool.daijia.model.entity.order.OrderInfo;
+import com.inool.daijia.model.entity.order.OrderMonitor;
 import com.inool.daijia.model.entity.order.OrderStatusLog;
 import com.inool.daijia.model.enums.OrderStatus;
 import com.inool.daijia.model.form.order.OrderInfoForm;
@@ -15,6 +16,7 @@ import com.inool.daijia.order.mapper.OrderStatusLogMapper;
 import com.inool.daijia.order.service.OrderInfoService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.inool.daijia.order.service.OrderMonitorService;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
@@ -43,6 +45,8 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     @Autowired
     private RedissonClient redissonClient;
 
+    @Autowired
+    private OrderMonitorService orderMonitorService;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -62,6 +66,10 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         } else {
             throw new InoolException(ResultCodeEnum.UPDATE_ERROR);
         }
+        //初始化订单监控统计数据
+        OrderMonitor orderMonitor = new OrderMonitor();
+        orderMonitor.setOrderId(startDriveForm.getOrderId());
+        orderMonitorService.saveOrderMonitor(orderMonitor);
         return true;
     }
 

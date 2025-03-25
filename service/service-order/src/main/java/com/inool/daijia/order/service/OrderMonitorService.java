@@ -6,5 +6,11 @@ import com.inool.daijia.model.entity.order.OrderMonitorRecord;
 
 public interface OrderMonitorService extends IService<OrderMonitor> {
 
+    Long saveOrderMonitor(OrderMonitor orderMonitor);
+
     Boolean saveOrderMonitorRecord(OrderMonitorRecord orderMonitorRecord);
+
+    OrderMonitor getOrderMonitor(Long orderId);
+
+    Boolean updateOrderMonitor(OrderMonitor orderMonitor);
 }
