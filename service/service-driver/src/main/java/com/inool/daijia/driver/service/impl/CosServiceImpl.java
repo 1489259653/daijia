@@ -1,7 +1,10 @@
 package com.inool.daijia.driver.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.inool.daijia.common.execption.InoolException;
+import com.inool.daijia.common.result.ResultCodeEnum;
 import com.inool.daijia.driver.config.TencentCloudProperties;
+import com.inool.daijia.driver.service.CiService;
 import com.inool.daijia.driver.service.CosService;
 import com.inool.daijia.model.vo.driver.CosUploadVo;
 import com.qcloud.cos.COSClient;
@@ -30,6 +33,9 @@ import java.util.UUID;
 public class CosServiceImpl implements CosService {
     @Autowired
     private TencentCloudProperties tencentCloudProperties;
+
+    @Autowired
+    private CiService ciService;
 
     private COSClient getPrivateCOSClient() {
         COSCredentials cred = new BasicCOSCredentials(tencentCloudProperties.getSecretId(), tencentCloudProperties.getSecretKey());
@@ -65,7 +71,13 @@ public class CosServiceImpl implements CosService {
         PutObjectResult putObjectResult = cosClient.putObject(putObjectRequest); //上传文件
         log.info(JSON.toJSONString(putObjectResult));
         cosClient.shutdown();
-
+        //审核图片
+        Boolean isAuditing = ciService.imageAuditing(uploadPath);
+        if(!isAuditing) {
+            //删除违规图片
+            cosClient.deleteObject(tencentCloudProperties.getBucketPrivate(), uploadPath);
+            throw new InoolException(ResultCodeEnum.IMAGE_AUDITION_FAIL);
+        }
         //封装返回对象
         CosUploadVo cosUploadVo = new CosUploadVo();
         cosUploadVo.setUrl(uploadPath);

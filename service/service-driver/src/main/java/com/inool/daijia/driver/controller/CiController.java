@@ -1,6 +1,7 @@
 package com.inool.daijia.driver.controller;
 
 import com.inool.daijia.common.result.Result;
+import com.inool.daijia.driver.service.CiService;
 import com.inool.daijia.model.vo.order.TextAuditingVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,7 +18,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value="/cos")
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class CiController {
-	
 
+    @Autowired
+    private CiService ciService;
+
+    @Operation(summary = "文本审核")
+    @PostMapping("/textAuditing")
+    public Result<TextAuditingVo> textAuditing(@RequestBody String content) {
+        return Result.ok(ciService.textAuditing(content));
+    }
 }
 
