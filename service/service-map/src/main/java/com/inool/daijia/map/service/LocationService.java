@@ -6,6 +6,7 @@ import com.inool.daijia.model.form.map.UpdateDriverLocationForm;
 import com.inool.daijia.model.form.map.UpdateOrderLocationForm;
 import com.inool.daijia.model.vo.map.NearByDriverVo;
 import com.inool.daijia.model.vo.map.OrderLocationVo;
+import com.inool.daijia.model.vo.map.OrderServiceLastLocationVo;
 
 import java.util.List;
 
@@ -22,4 +23,6 @@ public interface LocationService {
     OrderLocationVo getCacheOrderLocation(Long orderId);
 
     Boolean saveOrderServiceLocation(List<OrderServiceLocationForm> orderLocationServiceFormList);
+
+    OrderServiceLastLocationVo getOrderServiceLastLocation(Long orderId);
 }

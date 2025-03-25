@@ -17,15 +17,21 @@ import com.inool.daijia.model.form.map.UpdateDriverLocationForm;
 import com.inool.daijia.model.form.map.UpdateOrderLocationForm;
 import com.inool.daijia.model.vo.map.NearByDriverVo;
 import com.inool.daijia.model.vo.map.OrderLocationVo;
+import com.inool.daijia.model.vo.map.OrderServiceLastLocationVo;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.geo.*;
 import org.springframework.data.geo.Point;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+
 
 import java.math.RoundingMode;
 import java.util.Date;
@@ -49,6 +55,23 @@ public class LocationServiceImpl implements LocationService {
 
     @Autowired
     private OrderServiceLocationRepository orderServiceLocationRepository;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
+    @Override
+    public OrderServiceLastLocationVo getOrderServiceLastLocation(Long orderId) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("orderId").is(orderId));
+        query.with(Sort.by(Sort.Order.desc("createTime")));
+        query.limit(1);
+        OrderServiceLocation orderServiceLocation = mongoTemplate.findOne(query, OrderServiceLocation.class);
+
+        //封装返回对象
+        OrderServiceLastLocationVo orderServiceLastLocationVo = new OrderServiceLastLocationVo();
+        BeanUtils.copyProperties(orderServiceLocation, orderServiceLastLocationVo);
+        return orderServiceLastLocationVo;
+    }
 
     @Override
     public Boolean saveOrderServiceLocation(List<OrderServiceLocationForm> orderLocationServiceFormList) {

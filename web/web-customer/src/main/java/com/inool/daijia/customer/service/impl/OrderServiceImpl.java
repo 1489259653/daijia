@@ -18,6 +18,7 @@ import com.inool.daijia.model.vo.dispatch.NewOrderTaskVo;
 import com.inool.daijia.model.vo.driver.DriverInfoVo;
 import com.inool.daijia.model.vo.map.DrivingLineVo;
 import com.inool.daijia.model.vo.map.OrderLocationVo;
+import com.inool.daijia.model.vo.map.OrderServiceLastLocationVo;
 import com.inool.daijia.model.vo.order.OrderInfoVo;
 import com.inool.daijia.model.vo.rules.FeeRuleResponseVo;
 import com.inool.daijia.order.client.OrderInfoFeignClient;
@@ -52,6 +53,11 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private LocationFeignClient locationFeignClient;
 
+
+    @Override
+    public OrderServiceLastLocationVo getOrderServiceLastLocation(Long orderId) {
+        return locationFeignClient.getOrderServiceLastLocation(orderId).getData();
+    }
 
     @Override
     public OrderLocationVo getCacheOrderLocation(Long orderId) {

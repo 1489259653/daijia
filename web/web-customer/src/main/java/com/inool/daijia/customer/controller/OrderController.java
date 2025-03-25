@@ -11,6 +11,7 @@ import com.inool.daijia.model.vo.customer.ExpectOrderVo;
 import com.inool.daijia.model.vo.driver.DriverInfoVo;
 import com.inool.daijia.model.vo.map.DrivingLineVo;
 import com.inool.daijia.model.vo.map.OrderLocationVo;
+import com.inool.daijia.model.vo.map.OrderServiceLastLocationVo;
 import com.inool.daijia.model.vo.order.CurrentOrderInfoVo;
 import com.inool.daijia.model.vo.order.OrderInfoVo;
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,7 +45,12 @@ public class OrderController {
         return Result.ok(orderService.expectOrder(expectOrderForm));
     }
 
-
+    @Operation(summary = "代驾服务：获取订单服务最后一个位置信息")
+    @InoolLogin
+    @GetMapping("/getOrderServiceLastLocation/{orderId}")
+    public Result<OrderServiceLastLocationVo> getOrderServiceLastLocation(@PathVariable Long orderId) {
+        return Result.ok(orderService.getOrderServiceLastLocation(orderId));
+    }
 
     @Operation(summary = "乘客下单")
     @InoolLogin
