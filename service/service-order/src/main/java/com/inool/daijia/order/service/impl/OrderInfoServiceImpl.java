@@ -48,6 +48,15 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     @Autowired
     private OrderMonitorService orderMonitorService;
 
+    @Override
+    public Long getOrderNumByTime(String startTime, String endTime) {
+        LambdaQueryWrapper<OrderInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.ge(OrderInfo::getStartServiceTime, startTime);
+        queryWrapper.lt(OrderInfo::getStartServiceTime, endTime);
+        Long count = orderInfoMapper.selectCount(queryWrapper);
+        return count;
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Boolean startDrive(StartDriveForm startDriveForm) {
