@@ -1,5 +1,6 @@
 package com.inool.daijia.map.service;
 
+import com.inool.daijia.model.form.map.OrderServiceLocationForm;
 import com.inool.daijia.model.form.map.SearchNearByDriverForm;
 import com.inool.daijia.model.form.map.UpdateDriverLocationForm;
 import com.inool.daijia.model.form.map.UpdateOrderLocationForm;
@@ -19,4 +20,6 @@ public interface LocationService {
     Boolean updateOrderLocationToCache(UpdateOrderLocationForm updateOrderLocationForm);
 
     OrderLocationVo getCacheOrderLocation(Long orderId);
+
+    Boolean saveOrderServiceLocation(List<OrderServiceLocationForm> orderLocationServiceFormList);
 }

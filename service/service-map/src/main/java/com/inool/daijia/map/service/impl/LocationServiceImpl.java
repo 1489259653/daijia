@@ -7,14 +7,19 @@ import com.inool.daijia.common.execption.InoolException;
 import com.inool.daijia.common.result.ResultCodeEnum;
 import com.inool.daijia.driver.client.DriverInfoFeignClient;
 import com.inool.daijia.map.client.LocationFeignClient;
+import com.inool.daijia.map.repository.OrderServiceLocationRepository;
 import com.inool.daijia.map.service.LocationService;
 import com.inool.daijia.model.entity.driver.DriverSet;
+import com.inool.daijia.model.entity.map.OrderServiceLocation;
+import com.inool.daijia.model.form.map.OrderServiceLocationForm;
 import com.inool.daijia.model.form.map.SearchNearByDriverForm;
 import com.inool.daijia.model.form.map.UpdateDriverLocationForm;
 import com.inool.daijia.model.form.map.UpdateOrderLocationForm;
 import com.inool.daijia.model.vo.map.NearByDriverVo;
 import com.inool.daijia.model.vo.map.OrderLocationVo;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.geo.*;
 import org.springframework.data.geo.Point;
@@ -23,6 +28,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.RoundingMode;
+import java.util.Date;
 import java.util.List;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -41,6 +47,22 @@ public class LocationServiceImpl implements LocationService {
     private LocationFeignClient locationFeignClient;
 
 
+    @Autowired
+    private OrderServiceLocationRepository orderServiceLocationRepository;
+
+    @Override
+    public Boolean saveOrderServiceLocation(List<OrderServiceLocationForm> orderLocationServiceFormList) {
+        List<OrderServiceLocation> list = new ArrayList<>();
+        orderLocationServiceFormList.forEach(item -> {
+            OrderServiceLocation orderServiceLocation = new OrderServiceLocation();
+            BeanUtils.copyProperties(item, orderServiceLocation);
+            orderServiceLocation.setId(ObjectId.get().toString());
+            orderServiceLocation.setCreateTime(new Date());
+            list.add(orderServiceLocation);
+        });
+        orderServiceLocationRepository.saveAll(list);
+        return true;
+    }
 
     @Override
     public OrderLocationVo getCacheOrderLocation(Long orderId) {

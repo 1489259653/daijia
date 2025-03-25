@@ -1,6 +1,7 @@
 package com.inool.daijia.map.client;
 
 import com.inool.daijia.common.result.Result;
+import com.inool.daijia.model.form.map.OrderServiceLocationForm;
 import com.inool.daijia.model.form.map.SearchNearByDriverForm;
 import com.inool.daijia.model.form.map.UpdateDriverLocationForm;
 import com.inool.daijia.model.form.map.UpdateOrderLocationForm;
@@ -52,4 +53,12 @@ public interface LocationFeignClient {
      */
     @GetMapping("/map/location/getCacheOrderLocation/{orderId}")
     Result<OrderLocationVo> getCacheOrderLocation(@PathVariable("orderId") Long orderId);
+
+    /**
+     * 开始代驾服务：保存代驾服务订单位置
+     * @param orderLocationServiceFormList
+     * @return
+     */
+    @PostMapping("/map/location/saveOrderServiceLocation")
+    Result<Boolean> saveOrderServiceLocation(@RequestBody List<OrderServiceLocationForm> orderLocationServiceFormList);
 }
