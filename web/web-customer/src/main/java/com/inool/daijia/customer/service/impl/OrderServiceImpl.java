@@ -13,6 +13,7 @@ import com.inool.daijia.model.form.customer.SubmitOrderForm;
 import com.inool.daijia.model.form.map.CalculateDrivingLineForm;
 import com.inool.daijia.model.form.order.OrderInfoForm;
 import com.inool.daijia.model.form.rules.FeeRuleRequestForm;
+import com.inool.daijia.model.vo.base.PageVo;
 import com.inool.daijia.model.vo.customer.ExpectOrderVo;
 import com.inool.daijia.model.vo.dispatch.NewOrderTaskVo;
 import com.inool.daijia.model.vo.driver.DriverInfoVo;
@@ -53,6 +54,10 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private LocationFeignClient locationFeignClient;
 
+    @Override
+    public PageVo findCustomerOrderPage(Long customerId, Long page, Long limit) {
+        return orderInfoFeignClient.findCustomerOrderPage(customerId, page, limit).getData();
+    }
 
     @Override
     public OrderServiceLastLocationVo getOrderServiceLastLocation(Long orderId) {

@@ -7,6 +7,7 @@ import com.inool.daijia.customer.service.OrderService;
 import com.inool.daijia.model.form.customer.ExpectOrderForm;
 import com.inool.daijia.model.form.customer.SubmitOrderForm;
 import com.inool.daijia.model.form.map.CalculateDrivingLineForm;
+import com.inool.daijia.model.vo.base.PageVo;
 import com.inool.daijia.model.vo.customer.ExpectOrderVo;
 import com.inool.daijia.model.vo.driver.DriverInfoVo;
 import com.inool.daijia.model.vo.map.DrivingLineVo;
@@ -15,6 +16,7 @@ import com.inool.daijia.model.vo.map.OrderServiceLastLocationVo;
 import com.inool.daijia.model.vo.order.CurrentOrderInfoVo;
 import com.inool.daijia.model.vo.order.OrderInfoVo;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,6 +99,19 @@ public class OrderController {
         return Result.ok(orderService.getCacheOrderLocation(orderId));
     }
 
+    @Operation(summary = "获取乘客订单分页列表")
+    @InoolLogin
+    @GetMapping("findCustomerOrderPage/{page}/{limit}")
+    public Result<PageVo> findCustomerOrderPage(
+            @Parameter(name = "page", description = "当前页码", required = true)
+            @PathVariable Long page,
+
+            @Parameter(name = "limit", description = "每页记录数", required = true)
+            @PathVariable Long limit) {
+        Long customerId = AuthContextHolder.getUserId();
+        PageVo pageVo = orderService.findCustomerOrderPage(customerId, page, limit);
+        return Result.ok(pageVo);
+    }
 
 }
 

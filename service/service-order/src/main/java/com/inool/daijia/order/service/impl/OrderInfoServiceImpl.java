@@ -1,5 +1,7 @@
 package com.inool.daijia.order.service.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.inool.daijia.common.constant.MqConst;
 import com.inool.daijia.common.constant.RedisConstant;
 import com.inool.daijia.common.constant.SystemConstant;
@@ -12,7 +14,9 @@ import com.inool.daijia.model.form.order.OrderInfoForm;
 import com.inool.daijia.model.form.order.StartDriveForm;
 import com.inool.daijia.model.form.order.UpdateOrderBillForm;
 import com.inool.daijia.model.form.order.UpdateOrderCartForm;
+import com.inool.daijia.model.vo.base.PageVo;
 import com.inool.daijia.model.vo.order.CurrentOrderInfoVo;
+import com.inool.daijia.model.vo.order.OrderListVo;
 import com.inool.daijia.order.mapper.OrderBillMapper;
 import com.inool.daijia.order.mapper.OrderInfoMapper;
 import com.inool.daijia.order.mapper.OrderProfitsharingMapper;
@@ -60,6 +64,12 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
 
     @Autowired
     private OrderProfitsharingMapper orderProfitsharingMapper;
+
+    @Override
+    public PageVo findCustomerOrderPage(Page<OrderInfo> pageParam, Long customerId) {
+        IPage<OrderListVo> pageInfo = orderInfoMapper.selectCustomerOrderPage(pageParam, customerId);
+        return new PageVo(pageInfo.getRecords(), pageInfo.getPages(), pageInfo.getTotal());
+    }
 
     @Transactional
     @Override
