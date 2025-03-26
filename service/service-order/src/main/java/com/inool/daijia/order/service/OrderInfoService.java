@@ -29,4 +29,6 @@ public interface OrderInfoService extends IService<OrderInfo> {
     Long getOrderNumByTime(String startTime, String endTime);
 
     Boolean endDrive(UpdateOrderBillForm updateOrderBillForm);
+
+    void systemCancelOrder(Long l);
 }

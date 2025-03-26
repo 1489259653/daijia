@@ -1,8 +1,11 @@
 package com.inool.daijia.order.service.impl;
 
+import com.inool.daijia.common.constant.MqConst;
 import com.inool.daijia.common.constant.RedisConstant;
+import com.inool.daijia.common.constant.SystemConstant;
 import com.inool.daijia.common.execption.InoolException;
 import com.inool.daijia.common.result.ResultCodeEnum;
+import com.inool.daijia.common.service.RabbitService;
 import com.inool.daijia.model.entity.order.*;
 import com.inool.daijia.model.enums.OrderStatus;
 import com.inool.daijia.model.form.order.OrderInfoForm;
@@ -49,12 +52,36 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     @Autowired
     private OrderMonitorService orderMonitorService;
 
+    @Autowired
+    private RabbitService rabbitService;
 
     @Autowired
     private OrderBillMapper orderBillMapper;
 
     @Autowired
     private OrderProfitsharingMapper orderProfitsharingMapper;
+
+    @Transactional
+    @Override
+    public void systemCancelOrder(Long orderId) {
+        Integer orderStatus = this.getOrderStatus(orderId);
+        if(null != orderStatus && orderStatus.intValue() == OrderStatus.WAITING_ACCEPT.getStatus().intValue()) {
+            //取消订单
+            OrderInfo orderInfo = new OrderInfo();
+            orderInfo.setId(orderId);
+            orderInfo.setStatus(OrderStatus.CANCEL_ORDER.getStatus());
+            int row = orderInfoMapper.updateById(orderInfo);
+            if(row == 1) {
+                //记录日志
+                this.log(orderInfo.getId(), orderInfo.getStatus());
+
+                //删除redis订单标识
+                redisTemplate.delete(RedisConstant.ORDER_ACCEPT_MARK);
+            } else {
+                throw new InoolException(ResultCodeEnum.UPDATE_ERROR);
+            }
+        }
+    }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -188,6 +215,9 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
 
         //接单标识，标识不存在了说明不在等待接单状态了
         redisTemplate.opsForValue().set(RedisConstant.ORDER_ACCEPT_MARK, "0", RedisConstant.ORDER_ACCEPT_MARK_EXPIRES_TIME, TimeUnit.MINUTES);
+
+        //发送延迟消息，取消订单
+        rabbitService.sendDelayMessage(MqConst.EXCHANGE_CANCEL_ORDER, MqConst.ROUTING_CANCEL_ORDER, String.valueOf(orderInfo.getId()), SystemConstant.CANCEL_ORDER_DELAY_TIME);
         return orderInfo.getId();
     }
 
@@ -271,6 +301,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         }
         return true;
     }
+
     @Override
     public CurrentOrderInfoVo searchCustomerCurrentOrder(Long customerId) {
         LambdaQueryWrapper<OrderInfo> queryWrapper = new LambdaQueryWrapper<>();
