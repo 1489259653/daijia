@@ -4,6 +4,7 @@ import com.inool.daijia.model.form.customer.SubmitOrderForm;
 import com.inool.daijia.model.form.order.OrderFeeForm;
 import com.inool.daijia.model.form.order.StartDriveForm;
 import com.inool.daijia.model.form.order.UpdateOrderCartForm;
+import com.inool.daijia.model.vo.base.PageVo;
 import com.inool.daijia.model.vo.order.CurrentOrderInfoVo;
 import com.inool.daijia.model.vo.order.NewOrderDataVo;
 import com.inool.daijia.model.vo.order.OrderInfoVo;
@@ -33,4 +34,6 @@ public interface OrderService {
     Boolean startDrive(StartDriveForm startDriveForm);
 
     Boolean endDrive(OrderFeeForm orderFeeForm);
+
+    PageVo findDriverOrderPage(Long driverId, Long page, Long limit);
 }

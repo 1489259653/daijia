@@ -35,4 +35,6 @@ public interface OrderInfoService extends IService<OrderInfo> {
     void systemCancelOrder(Long l);
 
     PageVo findCustomerOrderPage(Page<OrderInfo> pageParam, Long customerId);
+
+    PageVo findDriverOrderPage(Page<OrderInfo> pageParam, Long driverId);
 }
