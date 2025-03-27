@@ -128,5 +128,13 @@ public class OrderController {
         return Result.ok(pageVo);
     }
 
+    @Operation(summary = "司机发送账单信息")
+    @InoolLogin
+    @GetMapping("/sendOrderBillInfo/{orderId}")
+    public Result<Boolean> sendOrderBillInfo(@PathVariable Long orderId) {
+        Long driverId = AuthContextHolder.getUserId();
+        return Result.ok(orderService.sendOrderBillInfo(orderId, driverId));
+    }
+
 }
 

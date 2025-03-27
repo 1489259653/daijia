@@ -65,14 +65,22 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private NewOrderFeignClient newOrderFeignClient;
 
+
+    @Autowired
+    private ThreadPoolExecutor threadPoolExecutor;
+
     @Override
     public PageVo findDriverOrderPage(Long driverId, Long page, Long limit) {
         return orderInfoFeignClient.findDriverOrderPage(driverId, page, limit).getData();
     }
 
 
-    @Autowired
-    private ThreadPoolExecutor threadPoolExecutor;
+    @Override
+    public Boolean sendOrderBillInfo(Long orderId, Long driverId) {
+        return orderInfoFeignClient.sendOrderBillInfo(orderId, driverId).getData();
+    }
+
+
 
     @SneakyThrows
     @Override
