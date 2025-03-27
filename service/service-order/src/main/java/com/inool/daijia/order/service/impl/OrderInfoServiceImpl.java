@@ -18,6 +18,7 @@ import com.inool.daijia.model.vo.base.PageVo;
 import com.inool.daijia.model.vo.order.CurrentOrderInfoVo;
 import com.inool.daijia.model.vo.order.OrderBillVo;
 import com.inool.daijia.model.vo.order.OrderListVo;
+import com.inool.daijia.model.vo.order.OrderProfitsharingVo;
 import com.inool.daijia.order.mapper.OrderBillMapper;
 import com.inool.daijia.order.mapper.OrderInfoMapper;
 import com.inool.daijia.order.mapper.OrderProfitsharingMapper;
@@ -65,6 +66,14 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
 
     @Autowired
     private OrderProfitsharingMapper orderProfitsharingMapper;
+
+    @Override
+    public OrderProfitsharingVo getOrderProfitsharing(Long orderId) {
+        OrderProfitsharing orderProfitsharing = orderProfitsharingMapper.selectOne(new LambdaQueryWrapper<OrderProfitsharing>().eq(OrderProfitsharing::getOrderId, orderId));
+        OrderProfitsharingVo orderProfitsharingVo = new OrderProfitsharingVo();
+        BeanUtils.copyProperties(orderProfitsharing, orderProfitsharingVo);
+        return orderProfitsharingVo;
+    }
 
     @Override
     public OrderBillVo getOrderBillInfo(Long orderId) {

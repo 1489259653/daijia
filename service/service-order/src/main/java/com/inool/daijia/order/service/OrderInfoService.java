@@ -10,6 +10,7 @@ import com.inool.daijia.model.form.order.UpdateOrderCartForm;
 import com.inool.daijia.model.vo.base.PageVo;
 import com.inool.daijia.model.vo.order.CurrentOrderInfoVo;
 import com.inool.daijia.model.vo.order.OrderBillVo;
+import com.inool.daijia.model.vo.order.OrderProfitsharingVo;
 
 public interface OrderInfoService extends IService<OrderInfo> {
 
@@ -40,4 +41,6 @@ public interface OrderInfoService extends IService<OrderInfo> {
     PageVo findDriverOrderPage(Page<OrderInfo> pageParam, Long driverId);
 
     OrderBillVo getOrderBillInfo(Long orderId);
+
+    OrderProfitsharingVo getOrderProfitsharing(Long orderId);
 }
