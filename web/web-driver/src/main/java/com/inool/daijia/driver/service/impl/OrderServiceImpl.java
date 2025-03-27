@@ -10,6 +10,7 @@ import com.inool.daijia.driver.service.OrderService;
 import com.inool.daijia.map.client.LocationFeignClient;
 import com.inool.daijia.map.client.MapFeignClient;
 import com.inool.daijia.model.entity.order.OrderInfo;
+import com.inool.daijia.model.enums.OrderStatus;
 import com.inool.daijia.model.form.customer.SubmitOrderForm;
 import com.inool.daijia.model.form.map.CalculateDrivingLineForm;
 import com.inool.daijia.model.form.order.*;
@@ -20,9 +21,7 @@ import com.inool.daijia.model.vo.base.PageVo;
 import com.inool.daijia.model.vo.map.DrivingLineVo;
 import com.inool.daijia.model.vo.map.OrderLocationVo;
 import com.inool.daijia.model.vo.map.OrderServiceLastLocationVo;
-import com.inool.daijia.model.vo.order.CurrentOrderInfoVo;
-import com.inool.daijia.model.vo.order.NewOrderDataVo;
-import com.inool.daijia.model.vo.order.OrderInfoVo;
+import com.inool.daijia.model.vo.order.*;
 import com.inool.daijia.model.vo.rules.FeeRuleResponseVo;
 import com.inool.daijia.model.vo.rules.ProfitsharingRuleResponseVo;
 import com.inool.daijia.model.vo.rules.RewardRuleResponseVo;
@@ -253,10 +252,24 @@ public class OrderServiceImpl implements OrderService {
             throw new InoolException(ResultCodeEnum.ILLEGAL_REQUEST);
         }
 
+        //账单信息
+        OrderBillVo orderBillVo = null;
+        //分账信息
+        OrderProfitsharingVo orderProfitsharing = null;
+        if (orderInfo.getStatus().intValue() >= OrderStatus.END_SERVICE.getStatus().intValue()) {
+            orderBillVo = orderInfoFeignClient.getOrderBillInfo(orderId).getData();
+
+            //获取分账信息
+            orderProfitsharing = orderInfoFeignClient.getOrderProfitsharing(orderId).getData();
+        }
+
         //封装订单信息
         OrderInfoVo orderInfoVo = new OrderInfoVo();
         orderInfoVo.setOrderId(orderId);
         BeanUtils.copyProperties(orderInfo, orderInfoVo);
+
+        orderInfoVo.setOrderBillVo(orderBillVo);
+        orderInfoVo.setOrderProfitsharingVo(orderProfitsharing);
         return orderInfoVo;
     }
 
