@@ -33,6 +33,13 @@ public class CustomerInfoServiceImpl extends ServiceImpl<CustomerInfoMapper, Cus
 
     @Autowired
     private CustomerLoginLogMapper customerLoginLogMapper;
+
+    @Override
+    public String getCustomerOpenId(Long customerId) {
+        CustomerInfo customerInfo = this.getOne(new LambdaQueryWrapper<CustomerInfo>().eq(CustomerInfo::getId, customerId).select(CustomerInfo::getWxOpenId));
+        return customerInfo.getWxOpenId();
+    }
+
     /**
      * 条件：
      *      1、前端开发者appid与服务器端appid一致
