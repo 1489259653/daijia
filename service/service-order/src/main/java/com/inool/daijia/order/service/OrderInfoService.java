@@ -9,6 +9,7 @@ import com.inool.daijia.model.form.order.UpdateOrderBillForm;
 import com.inool.daijia.model.form.order.UpdateOrderCartForm;
 import com.inool.daijia.model.vo.base.PageVo;
 import com.inool.daijia.model.vo.order.CurrentOrderInfoVo;
+import com.inool.daijia.model.vo.order.OrderBillVo;
 
 public interface OrderInfoService extends IService<OrderInfo> {
 
@@ -37,4 +38,6 @@ public interface OrderInfoService extends IService<OrderInfo> {
     PageVo findCustomerOrderPage(Page<OrderInfo> pageParam, Long customerId);
 
     PageVo findDriverOrderPage(Page<OrderInfo> pageParam, Long driverId);
+
+    OrderBillVo getOrderBillInfo(Long orderId);
 }
