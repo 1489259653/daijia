@@ -48,7 +48,8 @@ public enum ResultCodeEnum {
     WX_CODE_ERROR(207,"微信码错误" ),
     XXL_JOB_ERROR(208,"调度作业错误" ),
     FACE_FAIL(209,"人脸识别错误" ),
-    FILE_ERROR(210,"文件上传错误" );
+    FILE_ERROR(210,"文件上传错误" ),
+    WX_CREATE_ERROR(211,"微信创建失败" );
 
     private Integer code;
 

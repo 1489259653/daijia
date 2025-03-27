@@ -7,6 +7,7 @@ import com.inool.daijia.customer.service.OrderService;
 import com.inool.daijia.model.form.customer.ExpectOrderForm;
 import com.inool.daijia.model.form.customer.SubmitOrderForm;
 import com.inool.daijia.model.form.map.CalculateDrivingLineForm;
+import com.inool.daijia.model.form.payment.CreateWxPaymentForm;
 import com.inool.daijia.model.vo.base.PageVo;
 import com.inool.daijia.model.vo.customer.ExpectOrderVo;
 import com.inool.daijia.model.vo.driver.DriverInfoVo;
@@ -15,6 +16,7 @@ import com.inool.daijia.model.vo.map.OrderLocationVo;
 import com.inool.daijia.model.vo.map.OrderServiceLastLocationVo;
 import com.inool.daijia.model.vo.order.CurrentOrderInfoVo;
 import com.inool.daijia.model.vo.order.OrderInfoVo;
+import com.inool.daijia.model.vo.payment.WxPrepayVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -113,5 +115,13 @@ public class OrderController {
         return Result.ok(pageVo);
     }
 
+    @Operation(summary = "创建微信支付")
+    @InoolLogin
+    @PostMapping("/createWxPayment")
+    public Result<WxPrepayVo> createWxPayment(@RequestBody CreateWxPaymentForm createWxPaymentForm) {
+        Long customerId = AuthContextHolder.getUserId();
+        createWxPaymentForm.setCustomerId(customerId);
+        return Result.ok(orderService.createWxPayment(createWxPaymentForm));
+    }
 }
 

@@ -2,17 +2,21 @@ package com.inool.daijia.customer.service.impl;
 
 import com.inool.daijia.common.execption.InoolException;
 import com.inool.daijia.common.result.ResultCodeEnum;
+import com.inool.daijia.customer.client.CustomerInfoFeignClient;
 import com.inool.daijia.customer.service.OrderService;
 import com.inool.daijia.dispatch.client.NewOrderFeignClient;
 import com.inool.daijia.driver.client.DriverInfoFeignClient;
 import com.inool.daijia.map.client.LocationFeignClient;
 import com.inool.daijia.map.client.MapFeignClient;
+import com.inool.daijia.map.client.WxPayFeignClient;
 import com.inool.daijia.model.entity.order.OrderInfo;
 import com.inool.daijia.model.enums.OrderStatus;
 import com.inool.daijia.model.form.customer.ExpectOrderForm;
 import com.inool.daijia.model.form.customer.SubmitOrderForm;
 import com.inool.daijia.model.form.map.CalculateDrivingLineForm;
 import com.inool.daijia.model.form.order.OrderInfoForm;
+import com.inool.daijia.model.form.payment.CreateWxPaymentForm;
+import com.inool.daijia.model.form.payment.PaymentInfoForm;
 import com.inool.daijia.model.form.rules.FeeRuleRequestForm;
 import com.inool.daijia.model.vo.base.PageVo;
 import com.inool.daijia.model.vo.customer.ExpectOrderVo;
@@ -23,6 +27,8 @@ import com.inool.daijia.model.vo.map.OrderLocationVo;
 import com.inool.daijia.model.vo.map.OrderServiceLastLocationVo;
 import com.inool.daijia.model.vo.order.OrderBillVo;
 import com.inool.daijia.model.vo.order.OrderInfoVo;
+import com.inool.daijia.model.vo.order.OrderPayVo;
+import com.inool.daijia.model.vo.payment.WxPrepayVo;
 import com.inool.daijia.model.vo.rules.FeeRuleResponseVo;
 import com.inool.daijia.order.client.OrderInfoFeignClient;
 import com.inool.daijia.rules.client.FeeRuleFeignClient;
@@ -55,6 +61,39 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private LocationFeignClient locationFeignClient;
+
+    @Autowired
+    private CustomerInfoFeignClient customerInfoFeignClient;
+
+    @Autowired
+    private WxPayFeignClient wxPayFeignClient;
+
+    @Override
+    public WxPrepayVo createWxPayment(CreateWxPaymentForm createWxPaymentForm) {
+        //1.获取订单支付相关信息
+        OrderPayVo orderPayVo = orderInfoFeignClient.getOrderPayVo(createWxPaymentForm.getOrderNo(), createWxPaymentForm.getCustomerId()).getData();
+        //判断是否在未支付状态
+        if (orderPayVo.getStatus().intValue() != OrderStatus.UNPAID.getStatus().intValue()) {
+            throw new InoolException(ResultCodeEnum.ILLEGAL_REQUEST);
+        }
+
+        //2.获取乘客微信openId
+        String customerOpenId = customerInfoFeignClient.getCustomerOpenId(orderPayVo.getCustomerId()).getData();
+
+        //3.获取司机微信openId
+        String driverOpenId = driverInfoFeignClient.getDriverOpenId(orderPayVo.getDriverId()).getData();
+
+        //4.封装微信下单对象，微信支付只关注以下订单属性
+        PaymentInfoForm paymentInfoForm = new PaymentInfoForm();
+        paymentInfoForm.setCustomerOpenId(customerOpenId);
+        paymentInfoForm.setDriverOpenId(driverOpenId);
+        paymentInfoForm.setOrderNo(orderPayVo.getOrderNo());
+        paymentInfoForm.setAmount(orderPayVo.getPayAmount());
+        paymentInfoForm.setContent(orderPayVo.getContent());
+        paymentInfoForm.setPayWay(1);
+        WxPrepayVo wxPrepayVo = wxPayFeignClient.createWxPayment(paymentInfoForm).getData();
+        return wxPrepayVo;
+    }
 
     @Override
     public PageVo findCustomerOrderPage(Long customerId, Long page, Long limit) {
