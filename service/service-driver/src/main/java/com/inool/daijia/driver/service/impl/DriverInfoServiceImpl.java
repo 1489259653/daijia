@@ -65,6 +65,12 @@ public class DriverInfoServiceImpl extends ServiceImpl<DriverInfoMapper, DriverI
     private DriverFaceRecognitionMapper driverFaceRecognitionMapper;
 
     @Override
+    public String getDriverOpenId(Long driverId) {
+        DriverInfo driverInfo = this.getOne(new LambdaQueryWrapper<DriverInfo>().eq(DriverInfo::getId, driverId).select(DriverInfo::getWxOpenId));
+        return driverInfo.getWxOpenId();
+    }
+
+    @Override
     public DriverInfoVo getDriverInfo(Long driverId) {
         DriverInfo driverInfo = this.getById(driverId);
         DriverInfoVo driverInfoVo = new DriverInfoVo();
