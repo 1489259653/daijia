@@ -9,6 +9,7 @@ import com.inool.daijia.model.form.order.UpdateOrderCartForm;
 import com.inool.daijia.model.vo.base.PageVo;
 import com.inool.daijia.model.vo.order.CurrentOrderInfoVo;
 import com.inool.daijia.model.vo.order.OrderBillVo;
+import com.inool.daijia.model.vo.order.OrderPayVo;
 import com.inool.daijia.model.vo.order.OrderProfitsharingVo;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -158,4 +159,14 @@ public interface OrderInfoFeignClient {
      */
     @GetMapping("/order/info/sendOrderBillInfo/{orderId}/{driverId}")
     Result<Boolean> sendOrderBillInfo(@PathVariable("orderId") Long orderId, @PathVariable("driverId") Long driverId);
+
+    /**
+     * 获取订单支付信息
+     * @param orderNo
+     * @param customerId
+     * @return
+     */
+    @GetMapping("/order/info/getOrderPayVo/{orderNo}/{customerId}")
+    Result<OrderPayVo> getOrderPayVo(@PathVariable("orderNo") String orderNo, @PathVariable("customerId") Long customerId);
+
 }
