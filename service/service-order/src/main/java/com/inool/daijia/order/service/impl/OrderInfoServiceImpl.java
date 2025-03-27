@@ -67,6 +67,21 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
 
     @Transactional(rollbackFor = Exception.class)
     @Override
+    public void updateProfitsharingStatus(String orderNo) {
+        //查询订单
+        OrderInfo orderInfo = orderInfoMapper.selectOne(new LambdaQueryWrapper<OrderInfo>().eq(OrderInfo::getOrderNo, orderNo).select(OrderInfo::getId));
+
+        //更新状态条件
+        LambdaQueryWrapper<OrderProfitsharing> updateQueryWrapper = new LambdaQueryWrapper<>();
+        updateQueryWrapper.eq(OrderProfitsharing::getOrderId, orderInfo.getId());
+        //更新字段
+        OrderProfitsharing updateOrderProfitsharing = new OrderProfitsharing();
+        updateOrderProfitsharing.setStatus(2);
+        orderProfitsharingMapper.update(updateOrderProfitsharing, updateQueryWrapper);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
     public Boolean updateOrderPayStatus(String orderNo) {
         //查询订单，判断订单状态，如果已更新支付状态，直接返回
         LambdaQueryWrapper<OrderInfo> queryWrapper = new LambdaQueryWrapper<>();
