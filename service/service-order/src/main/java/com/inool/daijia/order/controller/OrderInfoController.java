@@ -8,10 +8,7 @@ import com.inool.daijia.model.form.order.StartDriveForm;
 import com.inool.daijia.model.form.order.UpdateOrderBillForm;
 import com.inool.daijia.model.form.order.UpdateOrderCartForm;
 import com.inool.daijia.model.vo.base.PageVo;
-import com.inool.daijia.model.vo.order.CurrentOrderInfoVo;
-import com.inool.daijia.model.vo.order.OrderBillVo;
-import com.inool.daijia.model.vo.order.OrderPayVo;
-import com.inool.daijia.model.vo.order.OrderProfitsharingVo;
+import com.inool.daijia.model.vo.order.*;
 import com.inool.daijia.order.service.OrderInfoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -157,6 +154,12 @@ public class OrderInfoController {
     @GetMapping("/updateOrderPayStatus/{orderNo}")
     public Result<Boolean> updateOrderPayStatus(@PathVariable String orderNo) {
         return Result.ok(orderInfoService.updateOrderPayStatus(orderNo));
+    }
+
+    @Operation(summary = "获取订单的系统奖励")
+    @GetMapping("/getOrderRewardFee/{orderNo}")
+    public Result<OrderRewardVo> getOrderRewardFee(@PathVariable String orderNo) {
+        return Result.ok(orderInfoService.getOrderRewardFee(orderNo));
     }
 
 }

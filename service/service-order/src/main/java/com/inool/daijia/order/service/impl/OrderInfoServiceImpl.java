@@ -40,6 +40,31 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo> implements OrderInfoService {
 
+
+    @Autowired
+    private OrderInfoMapper orderInfoMapper;
+
+    @Autowired
+    private OrderStatusLogMapper orderStatusLogMapper;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
+
+    @Autowired
+    private RedissonClient redissonClient;
+
+    @Autowired
+    private OrderMonitorService orderMonitorService;
+
+    @Autowired
+    private RabbitService rabbitService;
+
+    @Autowired
+    private OrderBillMapper orderBillMapper;
+
+    @Autowired
+    private OrderProfitsharingMapper orderProfitsharingMapper;
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Boolean updateOrderPayStatus(String orderNo) {
@@ -68,29 +93,18 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         return true;
     }
 
-    @Autowired
-    private OrderInfoMapper orderInfoMapper;
-
-    @Autowired
-    private OrderStatusLogMapper orderStatusLogMapper;
-
-    @Autowired
-    private RedisTemplate redisTemplate;
-
-    @Autowired
-    private RedissonClient redissonClient;
-
-    @Autowired
-    private OrderMonitorService orderMonitorService;
-
-    @Autowired
-    private RabbitService rabbitService;
-
-    @Autowired
-    private OrderBillMapper orderBillMapper;
-
-    @Autowired
-    private OrderProfitsharingMapper orderProfitsharingMapper;
+    @Override
+    public OrderRewardVo getOrderRewardFee(String orderNo) {
+        //查询订单
+        OrderInfo orderInfo = orderInfoMapper.selectOne(new LambdaQueryWrapper<OrderInfo>().eq(OrderInfo::getOrderNo, orderNo).select(OrderInfo::getId,OrderInfo::getDriverId));
+        //账单
+        OrderBill orderBill = orderBillMapper.selectOne(new LambdaQueryWrapper<OrderBill>().eq(OrderBill::getOrderId, orderInfo.getId()).select(OrderBill::getRewardFee));
+        OrderRewardVo orderRewardVo = new OrderRewardVo();
+        orderRewardVo.setOrderId(orderInfo.getId());
+        orderRewardVo.setDriverId(orderInfo.getDriverId());
+        orderRewardVo.setRewardFee(orderBill.getRewardFee());
+        return orderRewardVo;
+    }
 
     @Override
     public OrderPayVo getOrderPayVo(String orderNo, Long customerId) {

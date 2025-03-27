@@ -8,10 +8,7 @@ import com.inool.daijia.model.form.order.StartDriveForm;
 import com.inool.daijia.model.form.order.UpdateOrderBillForm;
 import com.inool.daijia.model.form.order.UpdateOrderCartForm;
 import com.inool.daijia.model.vo.base.PageVo;
-import com.inool.daijia.model.vo.order.CurrentOrderInfoVo;
-import com.inool.daijia.model.vo.order.OrderBillVo;
-import com.inool.daijia.model.vo.order.OrderPayVo;
-import com.inool.daijia.model.vo.order.OrderProfitsharingVo;
+import com.inool.daijia.model.vo.order.*;
 
 public interface OrderInfoService extends IService<OrderInfo> {
 
@@ -50,4 +47,6 @@ public interface OrderInfoService extends IService<OrderInfo> {
     OrderPayVo getOrderPayVo(String orderNo, Long customerId);
 
     Boolean updateOrderPayStatus(String orderNo);
+
+    OrderRewardVo getOrderRewardFee(String orderNo);
 }
