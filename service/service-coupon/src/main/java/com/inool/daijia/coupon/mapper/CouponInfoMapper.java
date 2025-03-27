@@ -8,6 +8,7 @@ import com.inool.daijia.model.vo.coupon.NoReceiveCouponVo;
 import com.inool.daijia.model.vo.coupon.NoUseCouponVo;
 import com.inool.daijia.model.vo.coupon.UsedCouponVo;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface CouponInfoMapper extends BaseMapper<CouponInfo> {
@@ -19,4 +20,6 @@ public interface CouponInfoMapper extends BaseMapper<CouponInfo> {
     IPage<UsedCouponVo> findUsedPage(Page<CouponInfo> pageParam, Long customerId);
 
     int updateReceiveCount(Long couponId);
+
+    int updateReceiveCountByLimit(@Param("id") Long id);
 }

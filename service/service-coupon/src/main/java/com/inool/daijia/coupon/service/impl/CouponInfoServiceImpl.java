@@ -3,6 +3,7 @@ package com.inool.daijia.coupon.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.inool.daijia.common.constant.RedisConstant;
 import com.inool.daijia.common.execption.InoolException;
 import com.inool.daijia.common.result.ResultCodeEnum;
 import com.inool.daijia.coupon.mapper.CouponInfoMapper;
@@ -15,11 +16,14 @@ import com.inool.daijia.model.vo.base.PageVo;
 import com.inool.daijia.model.vo.coupon.NoReceiveCouponVo;
 import com.inool.daijia.model.vo.coupon.NoUseCouponVo;
 import com.inool.daijia.model.vo.coupon.UsedCouponVo;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @SuppressWarnings({"unchecked", "rawtypes"})
@@ -30,6 +34,9 @@ public class CouponInfoServiceImpl extends ServiceImpl<CouponInfoMapper, CouponI
 
     @Autowired
     private CustomerCouponMapper customerCouponMapper;
+
+    @Autowired
+    private RedissonClient redissonClient;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -50,22 +57,42 @@ public class CouponInfoServiceImpl extends ServiceImpl<CouponInfoMapper, CouponI
             throw new InoolException(ResultCodeEnum.COUPON_LESS);
         }
 
-        //4、校验每人限领数量
-        if (couponInfo.getPerLimit() > 0) {
-            //4.1、统计当前用户对当前优惠券的已经领取的数量
-            long count = customerCouponMapper.selectCount(new LambdaQueryWrapper<CustomerCoupon>().eq(CustomerCoupon::getCouponId, couponId).eq(CustomerCoupon::getCustomerId, customerId));
-            //4.2、校验限领数量
-            if (count >= couponInfo.getPerLimit()) {
-                throw new InoolException(ResultCodeEnum.COUPON_USER_LIMIT);
-            }
-        }
+        RLock lock = null;
+        try {
+            // 初始化分布式锁
+            //每人领取限制  与 优惠券发行总数 必须保证原子性，使用customerId减少锁的粒度，增加并发能力
+            lock = redissonClient.getLock(RedisConstant.COUPON_LOCK + customerId);
+            boolean flag = lock.tryLock(RedisConstant.COUPON_LOCK_WAIT_TIME, RedisConstant.COUPON_LOCK_LEASE_TIME, TimeUnit.SECONDS);
+            if (flag) {
+                //4、校验每人限领数量
+                if (couponInfo.getPerLimit() > 0) {
+                    //4.1、统计当前用户对当前优惠券的已经领取的数量
+                    long count = customerCouponMapper.selectCount(new LambdaQueryWrapper<CustomerCoupon>().eq(CustomerCoupon::getCouponId, couponId).eq(CustomerCoupon::getCustomerId, customerId));
+                    //4.2、校验限领数量
+                    if (count >= couponInfo.getPerLimit()) {
+                        throw new InoolException(ResultCodeEnum.COUPON_USER_LIMIT);
+                    }
+                }
 
-        //5、更新优惠券领取数量
-        int row = couponInfoMapper.updateReceiveCount(couponId);
-        if (row == 1) {
-            //6、保存领取记录
-            this.saveCustomerCoupon(customerId, couponId, couponInfo.getExpireTime());
-            return true;
+                //5、更新优惠券领取数量
+                int row = 0;
+                if (couponInfo.getPublishCount() == 0) {//没有限制
+                    row = couponInfoMapper.updateReceiveCount(couponId);
+                } else {
+                    row = couponInfoMapper.updateReceiveCountByLimit(couponId);
+                }
+                if (row == 1) {
+                    //6、保存领取记录
+                    this.saveCustomerCoupon(customerId, couponId, couponInfo.getExpireTime());
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (null != lock) {
+                lock.unlock();
+            }
         }
         throw new InoolException(ResultCodeEnum.COUPON_LESS);
     }
