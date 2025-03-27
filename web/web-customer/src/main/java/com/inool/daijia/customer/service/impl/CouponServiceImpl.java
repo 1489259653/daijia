@@ -4,6 +4,7 @@ import com.inool.daijia.coupon.client.CouponFeignClient;
 import com.inool.daijia.customer.service.CouponService;
 import com.inool.daijia.model.vo.base.PageVo;
 import com.inool.daijia.model.vo.coupon.NoReceiveCouponVo;
+import com.inool.daijia.model.vo.coupon.NoUseCouponVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,10 @@ public class CouponServiceImpl implements CouponService {
     @Override
     public PageVo<NoReceiveCouponVo> findNoReceivePage(Long customerId, Long page, Long limit) {
         return couponFeignClient.findNoReceivePage(customerId, page, limit).getData();
+    }
+    @Override
+    public PageVo<NoUseCouponVo> findNoUsePage(Long customerId, Long page, Long limit) {
+        return couponFeignClient.findNoUsePage(customerId, page, limit).getData();
     }
 
 }
