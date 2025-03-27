@@ -68,5 +68,13 @@ public class CouponController {
         return Result.ok(pageVo);
     }
 
+    @Operation(summary = "领取优惠券")
+    @InoolLogin
+    @GetMapping("/receive/{couponId}")
+    public Result<Boolean> receive(@PathVariable Long couponId) {
+        Long customerId = AuthContextHolder.getUserId();
+        return Result.ok(couponService.receive(customerId, couponId));
+    }
+
 }
 

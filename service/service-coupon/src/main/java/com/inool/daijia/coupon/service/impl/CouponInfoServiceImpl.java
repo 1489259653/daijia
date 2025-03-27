@@ -1,17 +1,25 @@
 package com.inool.daijia.coupon.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.inool.daijia.common.execption.InoolException;
+import com.inool.daijia.common.result.ResultCodeEnum;
 import com.inool.daijia.coupon.mapper.CouponInfoMapper;
+import com.inool.daijia.coupon.mapper.CustomerCouponMapper;
 import com.inool.daijia.coupon.service.CouponInfoService;
 import com.inool.daijia.model.entity.coupon.CouponInfo;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.inool.daijia.model.entity.coupon.CustomerCoupon;
 import com.inool.daijia.model.vo.base.PageVo;
 import com.inool.daijia.model.vo.coupon.NoReceiveCouponVo;
 import com.inool.daijia.model.vo.coupon.NoUseCouponVo;
 import com.inool.daijia.model.vo.coupon.UsedCouponVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Date;
 
 @Service
 @SuppressWarnings({"unchecked", "rawtypes"})
@@ -19,6 +27,58 @@ public class CouponInfoServiceImpl extends ServiceImpl<CouponInfoMapper, CouponI
 
     @Autowired
     private CouponInfoMapper couponInfoMapper;
+
+    @Autowired
+    private CustomerCouponMapper customerCouponMapper;
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public Boolean receive(Long customerId, Long couponId) {
+        //1、查询优惠券
+        CouponInfo couponInfo = this.getById(couponId);
+        if(null == couponInfo) {
+            throw new InoolException(ResultCodeEnum.DATA_ERROR);
+        }
+
+        //2、优惠券过期日期判断
+        if (couponInfo.getExpireTime().before(new Date())) {
+            throw new InoolException(ResultCodeEnum.COUPON_EXPIRE);
+        }
+
+        //3、校验库存，优惠券领取数量判断
+        if (couponInfo.getPublishCount() !=0 && couponInfo.getReceiveCount() >= couponInfo.getPublishCount()) {
+            throw new InoolException(ResultCodeEnum.COUPON_LESS);
+        }
+
+        //4、校验每人限领数量
+        if (couponInfo.getPerLimit() > 0) {
+            //4.1、统计当前用户对当前优惠券的已经领取的数量
+            long count = customerCouponMapper.selectCount(new LambdaQueryWrapper<CustomerCoupon>().eq(CustomerCoupon::getCouponId, couponId).eq(CustomerCoupon::getCustomerId, customerId));
+            //4.2、校验限领数量
+            if (count >= couponInfo.getPerLimit()) {
+                throw new InoolException(ResultCodeEnum.COUPON_USER_LIMIT);
+            }
+        }
+
+        //5、更新优惠券领取数量
+        int row = couponInfoMapper.updateReceiveCount(couponId);
+        if (row == 1) {
+            //6、保存领取记录
+            this.saveCustomerCoupon(customerId, couponId, couponInfo.getExpireTime());
+            return true;
+        }
+        throw new InoolException(ResultCodeEnum.COUPON_LESS);
+    }
+
+    private void saveCustomerCoupon(Long customerId, Long couponId, Date expireTime) {
+        CustomerCoupon customerCoupon = new CustomerCoupon();
+        customerCoupon.setCustomerId(customerId);
+        customerCoupon.setCouponId(couponId);
+        customerCoupon.setStatus(1);
+        customerCoupon.setReceiveTime(new Date());
+        customerCoupon.setExpireTime(expireTime);
+        customerCouponMapper.insert(customerCoupon);
+    }
 
     @Override
     public PageVo<NoReceiveCouponVo> findNoReceivePage(Page<CouponInfo> pageParam, Long customerId) {
