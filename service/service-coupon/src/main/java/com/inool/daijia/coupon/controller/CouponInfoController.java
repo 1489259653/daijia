@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.inool.daijia.common.result.Result;
 import com.inool.daijia.coupon.service.CouponInfoService;
 import com.inool.daijia.model.entity.coupon.CouponInfo;
+import com.inool.daijia.model.form.coupon.UseCouponForm;
 import com.inool.daijia.model.vo.base.PageVo;
+import com.inool.daijia.model.vo.coupon.AvailableCouponVo;
 import com.inool.daijia.model.vo.coupon.NoReceiveCouponVo;
 import com.inool.daijia.model.vo.coupon.NoUseCouponVo;
 import com.inool.daijia.model.vo.coupon.UsedCouponVo;
@@ -12,10 +14,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 
 @Tag(name = "优惠券活动接口管理")
@@ -87,5 +89,16 @@ public class CouponInfoController {
         return Result.ok(couponInfoService.receive(customerId, couponId));
     }
 
+    @Operation(summary = "获取未使用的最佳优惠券信息")
+    @GetMapping("/findAvailableCoupon/{customerId}/{orderAmount}")
+    public Result<List<AvailableCouponVo>> findAvailableCoupon(@PathVariable Long customerId, @PathVariable BigDecimal orderAmount) {
+        return Result.ok(couponInfoService.findAvailableCoupon(customerId, orderAmount));
+    }
+
+    @Operation(summary = "使用优惠券")
+    @PostMapping("/useCoupon")
+    public Result<BigDecimal> useCoupon(@RequestBody UseCouponForm useCouponForm) {
+        return Result.ok(couponInfoService.useCoupon(useCouponForm));
+    }
 }
 

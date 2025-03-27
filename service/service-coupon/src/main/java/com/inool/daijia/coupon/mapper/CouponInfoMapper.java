@@ -10,6 +10,8 @@ import com.inool.daijia.model.vo.coupon.UsedCouponVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 @Mapper
 public interface CouponInfoMapper extends BaseMapper<CouponInfo> {
 
@@ -22,4 +24,8 @@ public interface CouponInfoMapper extends BaseMapper<CouponInfo> {
     int updateReceiveCount(Long couponId);
 
     int updateReceiveCountByLimit(@Param("id") Long id);
+
+    List<NoUseCouponVo> findNoUseList(Long customerId);
+
+    int updateUseCount(Long id);
 }
