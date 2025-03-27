@@ -12,4 +12,6 @@ public interface WxPayService {
     void wxnotify(HttpServletRequest request);
 
     Object queryPayStatus(String orderNo);
+
+    void handleOrder(String orderNo);
 }

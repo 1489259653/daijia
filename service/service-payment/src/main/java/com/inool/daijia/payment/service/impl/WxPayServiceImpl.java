@@ -26,6 +26,7 @@ import com.wechat.pay.java.service.payments.jsapi.JsapiServiceExtension;
 import com.wechat.pay.java.service.payments.jsapi.model.*;
 import com.wechat.pay.java.service.payments.model.Transaction;
 //import io.seata.spring.annotation.GlobalTransactional;
+import io.seata.spring.annotation.GlobalTransactional;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -55,7 +56,32 @@ public class WxPayServiceImpl implements WxPayService {
     @Autowired
     private RabbitService rabbitService;
 
+    @Autowired
+    private OrderInfoFeignClient orderInfoFeignClient;
 
+    @Autowired
+    private DriverAccountFeignClient driverAccountFeignClient;
+
+    @GlobalTransactional
+    @Override
+    public void handleOrder(String orderNo) {
+        //1.更改订单支付状态
+        orderInfoFeignClient.updateOrderPayStatus(orderNo);
+
+        //2.处理系统奖励，打入司机账户
+        OrderRewardVo orderRewardVo = orderInfoFeignClient.getOrderRewardFee(orderNo).getData();
+        if(null != orderRewardVo.getRewardFee() && orderRewardVo.getRewardFee().doubleValue() > 0) {
+            TransferForm transferForm = new TransferForm();
+            transferForm.setTradeNo(orderNo);
+            transferForm.setTradeType(TradeType.REWARD.getType());
+            transferForm.setContent(TradeType.REWARD.getContent());
+            transferForm.setAmount(orderRewardVo.getRewardFee());
+            transferForm.setDriverId(orderRewardVo.getDriverId());
+            driverAccountFeignClient.transfer(transferForm);
+        }
+
+        //3.TODO分账
+    }
 
     @Override
     public Boolean queryPayStatus(String orderNo) {
