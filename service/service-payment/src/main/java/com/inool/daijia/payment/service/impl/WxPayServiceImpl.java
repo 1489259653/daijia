@@ -2,6 +2,7 @@ package com.inool.daijia.payment.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.inool.daijia.common.constant.MqConst;
+import com.inool.daijia.common.constant.SystemConstant;
 import com.inool.daijia.common.execption.InoolException;
 import com.inool.daijia.common.result.ResultCodeEnum;
 import com.inool.daijia.common.service.RabbitService;
@@ -11,6 +12,8 @@ import com.inool.daijia.model.entity.payment.PaymentInfo;
 import com.inool.daijia.model.enums.TradeType;
 import com.inool.daijia.model.form.driver.TransferForm;
 import com.inool.daijia.model.form.payment.PaymentInfoForm;
+import com.inool.daijia.model.form.payment.ProfitsharingForm;
+import com.inool.daijia.model.vo.order.OrderProfitsharingVo;
 import com.inool.daijia.model.vo.order.OrderRewardVo;
 import com.inool.daijia.model.vo.payment.WxPrepayVo;
 import com.inool.daijia.order.client.OrderInfoFeignClient;
@@ -80,7 +83,15 @@ public class WxPayServiceImpl implements WxPayService {
             driverAccountFeignClient.transfer(transferForm);
         }
 
-        //3.TODO分账
+        //分账处理
+        OrderProfitsharingVo orderProfitsharingVo = orderInfoFeignClient.getOrderProfitsharing(orderRewardVo.getOrderId()).getData();
+        //封装分账参数对象
+        ProfitsharingForm profitsharingForm = new ProfitsharingForm();
+        profitsharingForm.setOrderNo(orderNo);
+        profitsharingForm.setAmount(orderProfitsharingVo.getDriverIncome());
+        profitsharingForm.setDriverId(orderRewardVo.getDriverId());
+        //分账有延迟，支付成功后最少2分钟执行分账申请
+        rabbitService.sendDelayMessage(MqConst.EXCHANGE_PROFITSHARING, MqConst.ROUTING_PROFITSHARING, JSON.toJSONString(profitsharingForm), SystemConstant.PROFITSHARING_DELAY_TIME);
     }
 
     @Override
