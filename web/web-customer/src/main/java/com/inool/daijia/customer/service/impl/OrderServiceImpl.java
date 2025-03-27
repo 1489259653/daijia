@@ -69,6 +69,11 @@ public class OrderServiceImpl implements OrderService {
     private WxPayFeignClient wxPayFeignClient;
 
     @Override
+    public Boolean queryPayStatus(String orderNo) {
+        return wxPayFeignClient.queryPayStatus(orderNo).getData();
+    }
+
+    @Override
     public WxPrepayVo createWxPayment(CreateWxPaymentForm createWxPaymentForm) {
         //1.获取订单支付相关信息
         OrderPayVo orderPayVo = orderInfoFeignClient.getOrderPayVo(createWxPaymentForm.getOrderNo(), createWxPaymentForm.getCustomerId()).getData();

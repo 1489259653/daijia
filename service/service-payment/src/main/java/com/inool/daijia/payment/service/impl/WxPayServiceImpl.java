@@ -57,6 +57,30 @@ public class WxPayServiceImpl implements WxPayService {
 
 
 
+    @Override
+    public Boolean queryPayStatus(String orderNo) {
+        // 构建service
+        JsapiServiceExtension service = new JsapiServiceExtension.Builder().config(rsaAutoCertificateConfig).build();
+
+        QueryOrderByOutTradeNoRequest queryRequest = new QueryOrderByOutTradeNoRequest();
+        queryRequest.setMchid(wxPayV3Properties.getMerchantId());
+        queryRequest.setOutTradeNo(orderNo);
+
+        try {
+            Transaction transaction = service.queryOrderByOutTradeNo(queryRequest);
+            log.info(JSON.toJSONString(transaction));
+            if(null != transaction && transaction.getTradeState() == Transaction.TradeStateEnum.SUCCESS) {
+                //更改订单状态
+                this.handlePayment(transaction);
+                return true;
+            }
+        } catch (ServiceException e) {
+            // API返回失败, 例如ORDER_NOT_EXISTS
+            System.out.printf("code=[%s], message=[%s]\n", e.getErrorCode(), e.getErrorMessage());
+        }
+        return false;
+    }
+
 
     @Transactional
     @Override
