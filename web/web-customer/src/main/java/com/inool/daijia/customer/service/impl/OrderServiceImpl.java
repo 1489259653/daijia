@@ -8,6 +8,7 @@ import com.inool.daijia.driver.client.DriverInfoFeignClient;
 import com.inool.daijia.map.client.LocationFeignClient;
 import com.inool.daijia.map.client.MapFeignClient;
 import com.inool.daijia.model.entity.order.OrderInfo;
+import com.inool.daijia.model.enums.OrderStatus;
 import com.inool.daijia.model.form.customer.ExpectOrderForm;
 import com.inool.daijia.model.form.customer.SubmitOrderForm;
 import com.inool.daijia.model.form.map.CalculateDrivingLineForm;
@@ -20,6 +21,7 @@ import com.inool.daijia.model.vo.driver.DriverInfoVo;
 import com.inool.daijia.model.vo.map.DrivingLineVo;
 import com.inool.daijia.model.vo.map.OrderLocationVo;
 import com.inool.daijia.model.vo.map.OrderServiceLastLocationVo;
+import com.inool.daijia.model.vo.order.OrderBillVo;
 import com.inool.daijia.model.vo.order.OrderInfoVo;
 import com.inool.daijia.model.vo.rules.FeeRuleResponseVo;
 import com.inool.daijia.order.client.OrderInfoFeignClient;
@@ -166,10 +168,24 @@ public class OrderServiceImpl implements OrderService {
             throw new InoolException(ResultCodeEnum.ILLEGAL_REQUEST);
         }
 
+        //获取司机信息
+        DriverInfoVo driverInfoVo = null;
+        if(null != orderInfo.getDriverId()) {
+            driverInfoVo = driverInfoFeignClient.getDriverInfo(orderInfo.getDriverId()).getData();
+        }
+
+        //账单信息
+        OrderBillVo orderBillVo = null;
+        if (orderInfo.getStatus().intValue() >= OrderStatus.UNPAID.getStatus().intValue()) {
+            orderBillVo = orderInfoFeignClient.getOrderBillInfo(orderId).getData();
+        }
+
         //封装订单信息
         OrderInfoVo orderInfoVo = new OrderInfoVo();
         orderInfoVo.setOrderId(orderId);
         BeanUtils.copyProperties(orderInfo, orderInfoVo);
+
+        orderInfoVo.setOrderBillVo(orderBillVo);
         return orderInfoVo;
     }
 }
